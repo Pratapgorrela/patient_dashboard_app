@@ -24,3 +24,16 @@ This is a basic healthcare project:
 
 # UI - RegisterPage:
 ![alt text](image.png)
+
+#UI - Appointment Page:
+![image](https://github.com/user-attachments/assets/df54be88-301c-444b-9e2a-727905816bd8)
+
+# UI - Appointment Success Page:
+![image](https://github.com/user-attachments/assets/a205ce48-6af3-438a-983b-8f6f1b46c5ae)
+
+# UI - Admin passkode modal:
+![image](https://github.com/user-attachments/assets/a22570cb-a74d-4da7-a998-ff66e19e9fc6)
+
+# UI - Admin page:
+![image](https://github.com/user-attachments/assets/7db5d245-f680-427f-a53e-64d4b34e4890)
+
