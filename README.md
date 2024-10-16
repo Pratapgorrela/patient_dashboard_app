@@ -19,5 +19,8 @@ This is a basic healthcare project:
 6. Twilio - For sending messages to end user phone number.
 
 # UI - HomePage:
+![image](https://github.com/user-attachments/assets/e75ec6b3-8b24-4881-99e5-440cc9a45611)
 
+
+# UI - RegisterPage:
 ![alt text](image.png)
