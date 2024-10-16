@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a basic healthcare project:
 
-## Getting Started
+# Functionality:
 
-First, run the development server:
+1. User can login with email and phone.
+2. After login user has to register by providing all the details along with identification proof.
+3. Once registration is completed then user can to create new appointments.
+4. Once appointment is created by the user then Admin can see them on their dashboard in pending state.
+5. Admin can confirm the appointments or cancel it based on doctor availablity.
+6. A message will be send to user based on the action performed by Admin => Schedule/ Cancel.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+# TechStack Used:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Nextjs + React + Typescript + Tailwindcss + ESLint - Framework setup, Routing, styling.
+2. React Hook Form - Forms creation.
+3. Zod - Form validation library.
+4. Shadcn - UI library
+5. Appwrite - For Backend DB setup - collections to save doctor, patient and appointment data and storage bucket to save documents.
+6. Twilio - For sending messages to end user phone number.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# UI - HomePage:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+![alt text](image.png)
