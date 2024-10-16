@@ -25,7 +25,7 @@ This is a basic healthcare project:
 # UI - RegisterPage:
 ![alt text](image.png)
 
-#UI - Appointment Page:
+# UI - Appointment Page:
 ![image](https://github.com/user-attachments/assets/df54be88-301c-444b-9e2a-727905816bd8)
 
 # UI - Appointment Success Page:
