@@ -7,7 +7,7 @@ import { Form, FormControl } from "@/components/ui/form";
 import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
-import { PatientFormValidation } from "@/lib/validation";
+import { PatientFormValidation } from "@/lib/types/validation";
 import { registerPatient } from "@/lib/actions/patient.actions";
 import { useRouter } from "next/navigation";
 import { FormFieldType } from "./PatientForm";

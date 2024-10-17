@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ID, Query } from "node-appwrite";
-import { databases, dbConfig, storage, users } from "../appwrite.config";
-import { parseStringify } from "../utils";
+import { databases, dbConfig, storage, users } from "../types/appwrite.config";
+import { parseStringify } from "../types/utils";
 import { InputFile } from "node-appwrite/file";
 
 export const createUser = async (user: CreateUserParams) => {

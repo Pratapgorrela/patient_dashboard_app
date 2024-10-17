@@ -1,8 +1,8 @@
 "use server";
 
 import { ID, Query } from "node-appwrite";
-import { databases, dbConfig, messaging } from "../appwrite.config";
-import { formatDateTime, parseStringify } from "../utils";
+import { databases, dbConfig, messaging } from "../types/appwrite.config";
+import { formatDateTime, parseStringify } from "../types/utils";
 import { Appointment } from "@/types/appwrite.type";
 import { revalidatePath } from "next/cache";
 

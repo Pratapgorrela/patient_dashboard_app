@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
-import { getAppointmentSchema } from "@/lib/validation";
+import { getAppointmentSchema } from "@/lib/types/validation";
 import { useRouter } from "next/navigation";
 import { FormFieldType } from "./PatientForm";
 import { Doctors } from "@/constants";

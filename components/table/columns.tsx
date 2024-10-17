@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Appointment } from "@/types/appwrite.type";
 import StatusBadge from "../StatusBadge";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime } from "@/lib/types/utils";
 import { Doctors } from "@/constants";
 import Image from "next/image";
 import AppointmentModal from "../AppointmentModal";
