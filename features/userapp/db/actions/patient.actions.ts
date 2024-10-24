@@ -1,7 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ID, Query } from "node-appwrite";
-import { databases, dbConfig, storage, users } from "../appwrite.config";
-import { parseStringify } from "../utils";
+import {
+	databases,
+	dbConfig,
+	storage,
+	users,
+} from "../../../../lib/types/appwrite.config";
+import { parseStringify } from "../../../../lib/types/utils";
 import { InputFile } from "node-appwrite/file";
 
 export const createUser = async (user: CreateUserParams) => {
@@ -14,8 +18,8 @@ export const createUser = async (user: CreateUserParams) => {
 			user.name
 		);
 		return parseStringify(newUser);
-	} catch (error: any) {
-		if (error && error?.code === 409) {
+	} catch (error: unknown) {
+		if (error && error?.["code"] === 409) {
 			const documents = await users.list([Query.equal("email", [user.email])]);
 			return documents?.users?.[0];
 		}
@@ -26,7 +30,7 @@ export const getUser = async (userId: string) => {
 	try {
 		const user = await users.get(userId);
 		return parseStringify(user);
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.log(error);
 	}
 };
@@ -60,7 +64,7 @@ export const registerPatient = async ({
 			}
 		);
 		return parseStringify(newPatient);
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.log(error);
 	}
 };
@@ -73,7 +77,7 @@ export const getPatient = async (userId: string) => {
 			[Query.equal("userId", userId)]
 		);
 		return parseStringify(patient.documents[0]);
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.log(error);
 	}
 };

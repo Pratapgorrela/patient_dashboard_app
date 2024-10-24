@@ -1,6 +1,6 @@
 "use client";
 
-import { convertFileToUrl } from "@/lib/utils";
+import { convertFileToUrl } from "@/lib/types/utils";
 import Image from "next/image";
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
@@ -14,7 +14,7 @@ const FileUploader = ({ files, onChange }: FileUploaderProps) => {
 	const onDrop = useCallback((acceptedFiles: File[]) => {
 		onChange(acceptedFiles);
 	}, []);
-	const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+	const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
 	return (
 		<div {...getRootProps()} className="file-upload">

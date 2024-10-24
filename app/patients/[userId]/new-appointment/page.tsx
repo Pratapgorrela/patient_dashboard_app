@@ -1,6 +1,6 @@
 import Image from "next/image";
-import AppointmentForm from "@/components/forms/AppointmentForm";
-import { getPatient } from "@/lib/actions/patient.actions";
+import AppointmentForm from "@/features/userapp/components/forms/AppointmentForm";
+import { getPatient } from "@/features/userapp/db/actions/patient.actions";
 
 export default async function NewAppointment({
 	params: { userId },

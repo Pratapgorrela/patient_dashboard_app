@@ -1,5 +1,5 @@
-import RegisterForm from "@/components/forms/RegisterForm";
-import { getUser } from "@/lib/actions/patient.actions";
+import RegisterForm from "@/features/userapp/components/forms/RegisterForm";
+import { getUser } from "@/features/userapp/db/actions/patient.actions";
 import Image from "next/image";
 
 const Register = async ({ params: { userId } }: SearchParamProps) => {

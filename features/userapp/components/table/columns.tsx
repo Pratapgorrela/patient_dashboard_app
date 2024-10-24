@@ -1,20 +1,9 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Appointment } from "@/types/appwrite.type";
-import StatusBadge from "../StatusBadge";
-import { formatDateTime } from "@/lib/utils";
+import StatusBadge from "@/components/StatusBadge";
+import { formatDateTime } from "@/lib/types/utils";
 import { Doctors } from "@/constants";
 import Image from "next/image";
 import AppointmentModal from "../AppointmentModal";
@@ -62,8 +51,8 @@ export const columns: ColumnDef<Appointment>[] = [
 					<Image
 						src={doctor?.imageSrc || ""}
 						alt={doctor?.name || ""}
-						width={100}
-						height={100}
+						width={32}
+						height={32}
 						className="size-8"
 					/>
 					<p className="whitespace-nowrap">Dr. {doctor?.name}</p>

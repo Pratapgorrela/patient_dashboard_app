@@ -4,46 +4,6 @@ export const GenderOptions = [
 	{ label: "Other", value: "other" },
 ];
 
-export const PatientFormDefaultValues = {
-	firstName: "",
-	lastName: "",
-	email: "",
-	phone: "",
-	birthDate: new Date(Date.now()),
-	gender: "male" as Gender,
-	address: "",
-	occupation: "",
-	emergencyContactName: "",
-	emergencyContactNumber: "",
-	primaryPhysician: "",
-	insuranceProvider: "",
-	insurancePolicyNumber: "",
-	allergies: "",
-	currentMedication: "",
-	familyMedicalHistory: "",
-	pastMedicalHistory: "",
-	identificationType: "Birth Certificate",
-	identificationNumber: "",
-	identificationDocument: [],
-	treatmentConsent: false,
-	disclosureConsent: false,
-	privacyConsent: false,
-};
-
-export const IdentificationTypes = [
-	{ name: "Birth Certificate" },
-	{ name: "Driver's License" },
-	{ name: "Medical Insurance Card/Policy" },
-	{ name: "Military ID Card" },
-	{ name: "National Identity Card" },
-	{ name: "Passport" },
-	{ name: "Resident Alien Card (Green Card)" },
-	{ name: "Social Security Card" },
-	{ name: "State ID Card" },
-	{ name: "Student ID Card" },
-	{ name: "Voter ID Card" },
-];
-
 export const Doctors = [
 	{
 		imageSrc: "/assets/images/dr-green.png",
