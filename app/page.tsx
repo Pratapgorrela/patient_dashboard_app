@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import PatientForm from "@/components/forms/PatientForm";
-import PasskeyModal from "@/components/passkeyModal";
+import PatientForm from "@/features/userapp/components/forms/PatientForm";
+import PasskeyModal from "@/components/PasskeyModal";
+// import { auth } from "@/auth";
 
-export default function Home({ searchParams }: SearchParamProps) {
+export default async function Home({ searchParams }: SearchParamProps) {
 	const isAdmin = searchParams?.admin === "true";
+	// Read user data from session - server side.
+	// const session = await auth();
 
 	return (
 		<div className="flex h-screen max-h-screen">

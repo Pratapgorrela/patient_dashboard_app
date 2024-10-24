@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -8,8 +9,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { Appointment } from "@/types/appwrite.type";
 import AppointmentForm from "./forms/AppointmentForm";
 

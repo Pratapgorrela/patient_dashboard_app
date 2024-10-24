@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Control } from "react-hook-form";
-import { FormFieldType } from "./forms/PatientForm";
+import { FormFieldType } from "../features/userapp/components/forms/PatientForm";
 import Image from "next/image";
 import PhoneInput from "react-phone-number-input";
 import DatePicker from "react-datepicker";

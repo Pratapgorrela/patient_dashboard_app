@@ -4,25 +4,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl } from "@/components/ui/form";
-import CustomFormField from "../CustomFormField";
-import SubmitButton from "../SubmitButton";
+import CustomFormField from "@/components/CustomFormField";
+import SubmitButton from "@/components/SubmitButton";
 import { useState } from "react";
-import { PatientFormValidation } from "@/lib/types/validation";
-import { registerPatient } from "@/lib/actions/patient.actions";
+import { PatientFormValidation } from "@/features/userapp/types/validation";
+import { registerPatient } from "@/features/userapp/db/actions/patient.actions";
 import { useRouter } from "next/navigation";
 import { FormFieldType } from "./PatientForm";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import {
-	Doctors,
-	GenderOptions,
-	IdentificationTypes,
-	PatientFormDefaultValues,
-} from "@/constants";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Doctors, GenderOptions } from "@/constants";
 import { Label } from "@radix-ui/react-label";
-import FileUploader from "../FileUploader";
+import FileUploader from "@/components/FileUploader";
+import { IdentificationTypes, PatientFormDefaultValues } from "../../constants";
+// import { useSession } from "next-auth/react";
 
 const RegisterForm = ({ user }: { user: User }) => {
 	const router = useRouter();
+	// Read user data from session - Client side.
+	// const { data: sessionData } = useSession();
 	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm<z.infer<typeof PatientFormValidation>>({

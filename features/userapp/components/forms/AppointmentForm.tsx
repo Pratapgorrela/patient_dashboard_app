@@ -4,17 +4,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import CustomFormField from "../CustomFormField";
-import SubmitButton from "../SubmitButton";
+import CustomFormField from "../../../../components/CustomFormField";
+import SubmitButton from "../../../../components/SubmitButton";
 import { useState } from "react";
-import { getAppointmentSchema } from "@/lib/types/validation";
+import { getAppointmentSchema } from "@/features/userapp/types/validation";
 import { useRouter } from "next/navigation";
 import { FormFieldType } from "./PatientForm";
 import { Doctors } from "@/constants";
 import {
 	createAppointment,
 	updateAppointment,
-} from "@/lib/actions/appointment.actions";
+} from "../../db/actions/appointment.actions";
 import { Appointment } from "@/types/appwrite.type";
 
 const AppointmentForm = ({
