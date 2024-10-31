@@ -30,13 +30,18 @@ declare interface RegisterUserParams extends CreateUserParams {
 }
 
 declare type CreateAppointmentParams = {
+	clientId: string;
 	userId: string;
-	patient: string;
-	primaryPhysician: string;
+	patientId?: string;
+	primaryPhysicianId?: string;
+	name: string;
+	phone: string;
+	email?: string;
+	gender: string;
 	reason: string;
 	schedule: Date;
 	status: Status;
-	note: string | undefined;
+	note?: string;
 };
 
 declare type UpdateAppointmentParams = {

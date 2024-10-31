@@ -1,11 +1,12 @@
 "use server";
+
 import { signIn, signOut } from "@/auth";
+import { UserSignupFormValidation } from "@/features/userapp/types/validation";
 import { AuthError } from "next-auth";
-import { UserFormValidation } from "@/features/userapp/types/validation";
 import { z } from "zod";
 
 export async function handleCredentialsSignIn(
-	userData: z.infer<typeof UserFormValidation>
+	userData: z.infer<typeof UserSignupFormValidation>
 ) {
 	try {
 		await signIn("credentials", { ...userData, redirect: false });

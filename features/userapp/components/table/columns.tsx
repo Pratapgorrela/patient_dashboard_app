@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Appointment } from "@/types/appwrite.type";
 import StatusBadge from "@/components/StatusBadge";
-import { formatDateTime } from "@/lib/types/utils";
+import { formatDateTime } from "@/lib/utils";
 import { Doctors } from "@/constants";
 import Image from "next/image";
 import AppointmentModal from "../AppointmentModal";

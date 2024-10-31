@@ -1,11 +1,12 @@
 import { ID, Query } from "node-appwrite";
 import {
+	account,
 	databases,
 	dbConfig,
 	storage,
 	users,
-} from "../../../../lib/types/appwrite.config";
-import { parseStringify } from "../../../../lib/types/utils";
+} from "@/lib/types/appwrite.config";
+import { parseStringify } from "@/lib/utils";
 import { InputFile } from "node-appwrite/file";
 
 export const createUser = async (user: CreateUserParams) => {
@@ -79,5 +80,25 @@ export const getPatient = async (userId: string) => {
 		return parseStringify(patient.documents[0]);
 	} catch (error: unknown) {
 		console.log(error);
+	}
+};
+
+export const generatePhoneToken = async (phone: string) => {
+	try {
+		const token = await account.createPhoneToken(ID.unique(), phone);
+		return token;
+	} catch (error: unknown) {
+		console.log(error);
+		return null;
+	}
+};
+
+export const validateUserLogin = async (userId: string, passKey: string) => {
+	try {
+		const session = await account.createSession(userId, passKey);
+		return session;
+	} catch (error: unknown) {
+		console.log(error);
+		return null;
 	}
 };

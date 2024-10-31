@@ -1,10 +1,11 @@
 "use server";
 
 import { ID, Query } from "node-appwrite";
-import { databases, dbConfig, messaging } from "@/lib/types/appwrite.config";
-import { formatDateTime, parseStringify } from "@/lib/types/utils";
+import { databases, dbConfig } from "@/lib/types/appwrite.config";
+import { formatDateTime, parseStringify } from "@/lib/utils";
 import { Appointment } from "@/types/appwrite.type";
 import { revalidatePath } from "next/cache";
+import { sendSMSNotification } from "@/lib/actions/common.actions";
 
 export const createAppointment = async (
 	appointment: CreateAppointmentParams
@@ -103,20 +104,6 @@ export const updateAppointment = async ({
 
 		revalidatePath("/admin");
 		return parseStringify(updateAppointment);
-	} catch (error: unknown) {
-		console.log(error);
-	}
-};
-
-export const sendSMSNotification = async (userId: string, content: string) => {
-	try {
-		const message = await messaging.createSms(
-			ID.unique(),
-			content,
-			[],
-			[userId]
-		);
-		return parseStringify(message);
 	} catch (error: unknown) {
 		console.log(error);
 	}

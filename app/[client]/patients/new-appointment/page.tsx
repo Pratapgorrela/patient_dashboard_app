@@ -2,10 +2,15 @@ import Image from "next/image";
 import AppointmentForm from "@/features/userapp/components/forms/AppointmentForm";
 import { getPatient } from "@/features/userapp/db/actions/patient.actions";
 
-export default async function NewAppointment({
-	params: { userId },
-}: SearchParamProps) {
-	const patient = await getPatient(userId);
+const user = {
+	id: "6789",
+	name: "pratap",
+	email: "test@gamil.com",
+	phone: "+918887665128",
+};
+
+export default async function NewAppointment() {
+	const patient = await getPatient(user?.id);
 	return (
 		<div className="flex h-screen max-h-screen">
 			<section className="remove-scrollbar container my-auto">
@@ -14,13 +19,13 @@ export default async function NewAppointment({
 						src={"/assets/icons/logo-full.svg"}
 						height={1000}
 						width={1000}
-						alt="patient"
+						alt="logo"
 						className="mb-12 h-10 w-fit"
 					/>
 					<AppointmentForm
 						type="create"
-						userId={userId}
-						patientId={patient.$id}
+						userId={user.id}
+						patientId={patient?.$id}
 					/>
 					<p className="copyright py-12">© 2024 CarePulse</p>
 				</div>
