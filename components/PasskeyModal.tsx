@@ -1,11 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import {
 	AlertDialog,
-	AlertDialogAction,
 	AlertDialogContent,
 	AlertDialogDescription,
-	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -14,55 +13,65 @@ import {
 	InputOTPGroup,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { decryptKey, encryptKey } from "@/lib/types/utils";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import Button from "./ButtonAtom";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { UserOtpValidation } from "./validations";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
-const PasskeyModal = () => {
+const PasskeyModal = ({
+	validatePasskey,
+	redirectUrl,
+}: {
+	validatePasskey: (passkey: string) => Promise<string>;
+	redirectUrl: string;
+}) => {
 	const router = useRouter();
-	const path = usePathname();
+	const { toast } = useToast();
+
 	const [open, setOpen] = useState(true);
-	const [passkey, setPasskey] = useState("");
 	const [error, setError] = useState("");
-
-	const encryptedKey =
-		typeof window !== "undefined"
-			? window.localStorage.getItem("accesskey")
-			: null;
-
-	useEffect(() => {
-		const decryptedKey = encryptedKey && decryptKey(encryptedKey);
-		if (path && decryptedKey) {
-			if (decryptedKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
-				setOpen(false);
-				router.push("/admin");
-			} else setError("Invalid passkey. Please try again.");
-		}
-	}, [encryptedKey]);
 
 	const closeModal = () => {
 		setOpen(false);
-		router.push("/");
 	};
 
-	const validatePasskey = (
-		e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-	) => {
-		e.preventDefault();
-		if (passkey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
-			const encryptedKey = encryptKey(passkey);
-			localStorage.setItem("accesskey", encryptedKey);
+	const form = useForm<z.infer<typeof UserOtpValidation>>({
+		resolver: zodResolver(UserOtpValidation),
+		defaultValues: {
+			passkey: "",
+		},
+	});
+
+	async function onSubmit(data: z.infer<typeof UserOtpValidation>) {
+		setError("");
+		const response = await validatePasskey(data.passkey);
+		if (response === "Success") {
+			toast({
+				description: "Login Successfull!",
+			});
 			setOpen(false);
-		} else setError("Invalid passkey. Please try again.");
-	};
+			router.push(redirectUrl);
+		} else setError(response);
+	}
 
 	return (
 		<AlertDialog open={open} onOpenChange={setOpen}>
 			<AlertDialogContent className="shad-alert-dialog">
 				<AlertDialogHeader>
 					<AlertDialogTitle className="flex items-start justify-between">
-						Admin Access Verification
+						Login Access Verification
 						<Image
 							src="/assets/icons/close.svg"
 							alt="close"
@@ -73,36 +82,43 @@ const PasskeyModal = () => {
 						/>
 					</AlertDialogTitle>
 					<AlertDialogDescription>
-						To access the admin page, please enter the passkey.
+						Please enter the one-time password sent to your phone.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
-				<div>
-					<InputOTP
-						maxLength={6}
-						value={passkey}
-						onChange={(value) => setPasskey(value)}>
-						<InputOTPGroup className="shad-otp">
-							<InputOTPSlot index={0} className="shad-otp-slot" />
-							<InputOTPSlot index={1} className="shad-otp-slot" />
-							<InputOTPSlot index={2} className="shad-otp-slot" />
-							<InputOTPSlot index={3} className="shad-otp-slot" />
-							<InputOTPSlot index={4} className="shad-otp-slot" />
-							<InputOTPSlot index={5} className="shad-otp-slot" />
-						</InputOTPGroup>
-					</InputOTP>
-					{error && (
-						<p className="shad-error text-14-regular mt-4 flex justify-center">
-							{error}
-						</p>
-					)}
-				</div>
-				<AlertDialogFooter>
-					<AlertDialogAction
-						onClick={validatePasskey}
-						className="shad-primary-btn w-full ">
-						Enter Admin Passkey
-					</AlertDialogAction>
-				</AlertDialogFooter>
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="w-2/3 space-y-6">
+						<FormField
+							control={form.control}
+							name="passkey"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>One-Time Password</FormLabel>
+									<FormControl>
+										<InputOTP maxLength={6} {...field} autoFocus>
+											<InputOTPGroup className="shad-otp flex gap-1">
+												<InputOTPSlot index={0} className="shad-otp-slot" />
+												<InputOTPSlot index={1} className="shad-otp-slot" />
+												<InputOTPSlot index={2} className="shad-otp-slot" />
+												<InputOTPSlot index={3} className="shad-otp-slot" />
+												<InputOTPSlot index={4} className="shad-otp-slot" />
+												<InputOTPSlot index={5} className="shad-otp-slot" />
+											</InputOTPGroup>
+										</InputOTP>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						{error && (
+							<p className="shad-error text-14-regular mt-4 flex justify-center">
+								{error}
+							</p>
+						)}
+						<Button>Submit</Button>
+					</form>
+				</Form>
 			</AlertDialogContent>
 		</AlertDialog>
 	);

@@ -5,32 +5,23 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
 import CustomFormField from "../../../../components/CustomFormField";
-import SubmitButton from "../../../../components/SubmitButton";
+import Button from "../../../../components/ButtonAtom";
 import { useState } from "react";
-import { UserFormValidation } from "@/features/userapp/types/validation";
+import { UserSignupFormValidation } from "@/features/userapp/types/validation";
 import { createUser } from "@/features/userapp/db/actions/patient.actions";
 import { useRouter } from "next/navigation";
 import {
 	handleCredentialsSignIn,
 	// handleSignOut,
 } from "@/lib/actions/auth.actions";
+import { FormFieldType } from "@/constants";
 
-export enum FormFieldType {
-	INPUT = "input",
-	PHONE_INPUT = "phone",
-	CHECKBOX = "checkbox",
-	DATE_PICKER = "datepicker",
-	SKELETON = "skeleton",
-	SELECT = "select",
-	TEXTAREA = "textarea",
-}
-
-const PatientForm = () => {
+const PatientSignupForm = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 
-	const form = useForm<z.infer<typeof UserFormValidation>>({
-		resolver: zodResolver(UserFormValidation),
+	const form = useForm<z.infer<typeof UserSignupFormValidation>>({
+		resolver: zodResolver(UserSignupFormValidation),
 		defaultValues: {
 			name: "",
 			email: "",
@@ -38,18 +29,22 @@ const PatientForm = () => {
 		},
 	});
 
-	async function onSubmit(userData: z.infer<typeof UserFormValidation>) {
+	async function onSubmit(userData: z.infer<typeof UserSignupFormValidation>) {
 		setIsLoading(true);
 		try {
 			const user = await createUser(userData);
 			await handleCredentialsSignIn(userData);
-			if (user) router.push(`/patients/${user.$id}/register`);
+			if (user) router.push(`/patients/fortis/register`);
 			setIsLoading(false);
 		} catch (error) {
 			console.log(error);
 			setIsLoading(false);
 		}
 	}
+
+	const handleLogin = () => {
+		router.push(`/patients/fortis/login`);
+	};
 
 	return (
 		<>
@@ -62,7 +57,9 @@ const PatientForm = () => {
 					className="space-y-6 flex-1">
 					<section className="mb-12 space-y-4">
 						<h1 className="header">Hi there 👋</h1>
-						<p className="text-dark-700">Schedule your first appointment.</p>
+						<p className="text-dark-700">
+							Signup to Schedule your first appointment.
+						</p>
 					</section>
 					<CustomFormField
 						control={form.control}
@@ -89,13 +86,14 @@ const PatientForm = () => {
 						label="Phone number"
 						placeholder="123 456 7890"
 					/>
-					<SubmitButton isLoading={isLoading} className="">
-						Get Started
-					</SubmitButton>
+					<Button isLoading={isLoading}>Get Started</Button>
+					<Button isLoading={isLoading} onClick={handleLogin} type="button">
+						Login
+					</Button>
 				</form>
 			</Form>
 		</>
 	);
 };
 
-export default PatientForm;
+export default PatientSignupForm;

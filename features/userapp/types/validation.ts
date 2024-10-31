@@ -1,11 +1,17 @@
 import { z } from "zod";
 
-export const UserFormValidation = z.object({
+export const UserSignupFormValidation = z.object({
 	name: z
 		.string()
 		.min(2, "Name must be at least 2 characters")
 		.max(50, "Name must be at most 50 characters"),
 	email: z.string().email("Invalid email address"),
+	phone: z
+		.string()
+		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+});
+
+export const UserLoginFormValidation = z.object({
 	phone: z
 		.string()
 		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
@@ -77,7 +83,19 @@ export const PatientFormValidation = z.object({
 });
 
 export const CreateAppointmentSchema = z.object({
-	primaryPhysician: z.string().min(2, "Select at least one doctor"),
+	name: z
+		.string()
+		.min(2, "Name must be at least 2 characters")
+		.max(50, "Name must be at most 50 characters"),
+	phone: z
+		.string()
+		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+	email: z.string().email("Invalid email address").optional(),
+	gender: z.enum(["male", "female", "other"]),
+	primaryPhysicianId: z
+		.string()
+		.min(2, "Select at least one doctor")
+		.optional(),
 	schedule: z.coerce.date(),
 	reason: z
 		.string()
@@ -88,17 +106,38 @@ export const CreateAppointmentSchema = z.object({
 });
 
 export const ScheduleAppointmentSchema = z.object({
-	primaryPhysician: z.string().min(2, "Select at least one doctor"),
+	name: z
+		.string()
+		.min(2, "Name must be at least 2 characters")
+		.max(50, "Name must be at most 50 characters"),
+	phone: z
+		.string()
+		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+	email: z.string().email("Invalid email address").optional(),
+	gender: z.enum(["male", "female", "other"]),
+	primaryPhysicianId: z.string().min(2, "Select at least one doctor"),
 	schedule: z.coerce.date(),
-	reason: z.string().optional(),
+	reason: z.string(),
 	note: z.string().optional(),
 	cancellationReason: z.string().optional(),
 });
 
 export const CancelAppointmentSchema = z.object({
-	primaryPhysician: z.string().min(2, "Select at least one doctor"),
+	name: z
+		.string()
+		.min(2, "Name must be at least 2 characters")
+		.max(50, "Name must be at most 50 characters"),
+	phone: z
+		.string()
+		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+	email: z.string().email("Invalid email address").optional(),
+	gender: z.enum(["male", "female", "other"]),
+	primaryPhysicianId: z
+		.string()
+		.min(2, "Select at least one doctor")
+		.optional(),
 	schedule: z.coerce.date(),
-	reason: z.string().optional(),
+	reason: z.string(),
 	note: z.string().optional(),
 	cancellationReason: z
 		.string()

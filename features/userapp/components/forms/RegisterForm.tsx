@@ -5,15 +5,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl } from "@/components/ui/form";
 import CustomFormField from "@/components/CustomFormField";
-import SubmitButton from "@/components/SubmitButton";
+import Button from "@/components/ButtonAtom";
 import { useState } from "react";
 import { PatientFormValidation } from "@/features/userapp/types/validation";
 import { registerPatient } from "@/features/userapp/db/actions/patient.actions";
 import { useRouter } from "next/navigation";
-import { FormFieldType } from "./PatientForm";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Doctors, GenderOptions } from "@/constants";
-import { Label } from "@radix-ui/react-label";
+import { Doctors, FormFieldType, GenderOptions } from "@/constants";
 import FileUploader from "@/components/FileUploader";
 import { IdentificationTypes, PatientFormDefaultValues } from "../../constants";
 // import { useSession } from "next-auth/react";
@@ -31,6 +28,9 @@ const RegisterForm = ({ user }: { user: User }) => {
 			name: "",
 			email: "",
 			phone: "",
+			treatmentConsent: true,
+			disclosureConsent: true,
+			privacyConsent: true,
 		},
 	});
 
@@ -68,8 +68,8 @@ const RegisterForm = ({ user }: { user: User }) => {
 		<Form {...form}>
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
-				className="space-y-12 flex-1">
-				<section className="space-y-4">
+				className="space-y-12 flex-1 pb-10">
+				<section className="space-y-4 flex items-center md:items-start flex-col">
 					<h1 className="header">Welcome 👋</h1>
 					<p className="text-dark-700">Let us know more about your self</p>
 				</section>
@@ -115,26 +115,10 @@ const RegisterForm = ({ user }: { user: User }) => {
 					/>
 					<CustomFormField
 						control={form.control}
-						fieldType={FormFieldType.SKELETON}
+						fieldType={FormFieldType.RADIO_GROUP}
 						name="gender"
 						label="Gender"
-						renderSkeleton={(field) => (
-							<FormControl>
-								<RadioGroup
-									className="flex h-11 gap-6 xl:justify-between"
-									onValueChange={field.onChenge}
-									defaultValue={field.value}>
-									{GenderOptions.map(({ label, value }) => (
-										<div key={value} className="radio-group">
-											<RadioGroupItem value={value} id={value} />
-											<Label htmlFor={value} className="cursor-pointer">
-												{label}
-											</Label>
-										</div>
-									))}
-								</RadioGroup>
-							</FormControl>
-						)}
+						options={GenderOptions}
 					/>
 				</div>
 
@@ -246,6 +230,7 @@ const RegisterForm = ({ user }: { user: User }) => {
 					fieldType={FormFieldType.SELECT}
 					name="identificationType"
 					label="Identification Type"
+					optionLabel="name"
 					placeholder="Select an identification type"
 					options={IdentificationTypes}
 				/>
@@ -288,10 +273,11 @@ const RegisterForm = ({ user }: { user: User }) => {
 					name="privacyConsent"
 					label="I consent to privacy policy"
 				/>
-
-				<SubmitButton isLoading={isLoading} className="">
-					Get Started
-				</SubmitButton>
+				<div>
+					<Button isLoading={isLoading} className="w-[30%]">
+						Submit
+					</Button>
+				</div>
 			</form>
 		</Form>
 	);

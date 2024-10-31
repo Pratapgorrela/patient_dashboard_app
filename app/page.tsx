@@ -1,44 +1,71 @@
-import Image from "next/image";
-import Link from "next/link";
-import PatientForm from "@/features/userapp/components/forms/PatientForm";
-import PasskeyModal from "@/components/PasskeyModal";
-// import { auth } from "@/auth";
+"use client";
 
-export default async function Home({ searchParams }: SearchParamProps) {
-	const isAdmin = searchParams?.admin === "true";
-	// Read user data from session - server side.
-	// const session = await auth();
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import CustomFormField from "@/components/CustomFormField";
+import Button from "@/components/ButtonAtom";
+import { Form } from "@/components/ui/form";
+import { Clients, FormFieldType, UserTypes } from "@/constants";
+import { ClientSchema } from "@/features/clientapp/validations";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+export default function MainPage() {
+	const router = useRouter();
+	const form = useForm<z.infer<typeof ClientSchema>>({
+		resolver: zodResolver(ClientSchema),
+		defaultValues: {
+			client: "",
+		},
+	});
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	async function onSubmit(values: z.infer<typeof ClientSchema>) {
+		setIsLoading(true);
+		try {
+			console.log("values=>>", values);
+			// TODO: Save the selected value in state.
+			router.push(`/patients/${values.client}/signup`);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
+	}
 
 	return (
 		<div className="flex h-screen max-h-screen">
-			{isAdmin && <PasskeyModal />}
-			<section className="remove-scrollbar container my-auto">
+			<section className="container my-auto">
 				<div className="sub-container max-w-[496px]">
-					<Image
-						src={"/assets/icons/logo-full.svg"}
-						height={1000}
-						width={1000}
-						alt="patient"
-						className="mb-12 h-10 w-fit"
-					/>
-					<PatientForm />
-					<div className="text-14-regular mt-20 flex justify-between">
-						<p className="justify-items-end text-dark-600 xl:text-left">
-							© 2024 CarePulse
-						</p>
-						<Link href={"/?admin=true"} className="text-green-500">
-							Admin
-						</Link>
-					</div>
+					<Form {...form}>
+						<form
+							onSubmit={form.handleSubmit(onSubmit)}
+							className="space-y-6 flex-1">
+							<div className="flex gap-2">
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.SELECT}
+									name="client"
+									placeholder="Select a Hospital"
+									options={Clients}
+								/>
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.SELECT}
+									name="userType"
+									placeholder="Select account type"
+									options={UserTypes}
+								/>
+							</div>
+							<Button isLoading={isLoading} className="">
+								Get Started
+							</Button>
+						</form>
+					</Form>
 				</div>
 			</section>
-			<Image
-				src={"/assets/images/onboarding-img.png"}
-				height={1000}
-				width={1000}
-				alt="patient"
-				className="side-img max-w-[50%]"
-			/>
 		</div>
 	);
 }

@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Control } from "react-hook-form";
-import { FormFieldType } from "../features/userapp/components/forms/PatientForm";
 import Image from "next/image";
 import PhoneInput from "react-phone-number-input";
 import DatePicker from "react-datepicker";
@@ -25,12 +24,16 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
+import { FormFieldType } from "@/constants";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Label } from "./ui/label";
 
 interface CustomProps {
 	control: Control<any>;
 	fieldType: FormFieldType;
 	name: string;
 	label?: string;
+	optionLabel?: string;
 	placeholder?: string;
 	iconSrc?: string;
 	iconAlt?: string;
@@ -40,6 +43,9 @@ interface CustomProps {
 	childern?: React.ReactNode;
 	renderSkeleton?: (field: any) => React.ReactNode;
 	options?: any[];
+	selectKey?: string;
+	minDate?: Date;
+	maxDate?: Date;
 }
 
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
@@ -47,15 +53,19 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		fieldType,
 		name = "",
 		label = "",
+		optionLabel = "label",
 		placeholder = "",
 		iconSrc = "",
 		iconAlt = "",
+		selectKey = "name",
 		showTimeSelect,
 		dateFormat,
 		renderSkeleton,
 		options = [],
 		childern,
 		disabled = false,
+		minDate = undefined,
+		maxDate = undefined,
 	} = props;
 
 	switch (fieldType) {
@@ -117,11 +127,31 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 							id={name}
 							checked={field.value}
 							onCheckedChange={field.onChange}
+							defaultChecked={true}
 						/>
 						<label htmlFor={name} className="checkbox-label">
 							{label}
 						</label>
 					</div>
+				</FormControl>
+			);
+
+		case FormFieldType.RADIO_GROUP:
+			return (
+				<FormControl>
+					<RadioGroup
+						className="flex h-11 gap-6 xl:justify-between"
+						onValueChange={field.onChenge}
+						defaultValue={field.value}>
+						{options?.map(({ label, value }) => (
+							<div key={value} className="radio-group">
+								<RadioGroupItem value={value} id={value} />
+								<Label htmlFor={value} className="cursor-pointer">
+									{label}
+								</Label>
+							</div>
+						))}
+					</RadioGroup>
 				</FormControl>
 			);
 
@@ -143,6 +173,8 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 							showTimeSelect={showTimeSelect ?? false}
 							timeInputLabel="Time:"
 							className="date-picker"
+							minDate={minDate}
+							maxDate={maxDate}
 						/>
 					</FormControl>
 				</div>
@@ -158,18 +190,18 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 						<SelectContent className="shad-select-content">
 							{!childern &&
 								options.map((option, index: number) => (
-									<SelectItem key={index} value={option?.name}>
+									<SelectItem key={index} value={option?.[selectKey]}>
 										<div className="flex cursor-pointer items-center gap-2">
 											{option?.imageSrc && (
 												<Image
 													src={option?.imageSrc}
-													alt={option?.name}
+													alt={option?.[selectKey]}
 													width={32}
 													height={32}
 													className="rounded-full border border-dark-500"
 												/>
 											)}
-											<p>{option?.name}</p>
+											<p>{option?.[optionLabel]}</p>
 										</div>
 									</SelectItem>
 								))}
