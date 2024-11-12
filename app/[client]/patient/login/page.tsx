@@ -1,15 +1,7 @@
 import Image from "next/image";
 import PatientLoginForm from "@/features/userapp/components/forms/PatientLoginForm";
-// import PasskeyModal from "@/components/PasskeyModal";
-// import Link from "next/link";
-// import { auth } from "@/auth";
 
 export default async function Login() {
-	// { searchParams }: SearchParamProps
-	// const isAdmin = searchParams?.admin === "true";
-	// Read user data from session - server side.
-	// const session = await auth();
-
 	return (
 		<div className="flex h-screen max-h-screen">
 			<section className="remove-scrollbar container my-auto">

@@ -4,19 +4,20 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Appointment } from "@/types/appwrite.type";
 import StatusBadge from "@/components/StatusBadge";
 import { formatDateTime } from "@/lib/utils";
+import { Doctors } from "@/constants";
 import Image from "next/image";
-import AppointmentModal from "../AppointmentModal";
+import AppointmentModal from "@/features/userapp/components/AppointmentModal";
 
 export const columns: ColumnDef<Appointment>[] = [
 	{
 		header: "ID",
-		cell: ({ row }) => <p className="text-14-regular">{row.index + 1}</p>,
+		cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>,
 	},
 	{
 		accessorKey: "patient",
 		header: "Patient",
 		cell: ({ row }) => (
-			<p className="text-14-regular">{row.original.patient.name}</p>
+			<p className="text-14-medium">{row.original.patient.name}</p>
 		),
 	},
 	{
@@ -29,7 +30,7 @@ export const columns: ColumnDef<Appointment>[] = [
 		),
 	},
 	{
-		accessorKey: "schedule",
+		accessorKey: "stschedule",
 		header: "Appointment",
 		cell: ({ row }) => (
 			<p className="text-14-regular min-w-[100px]">
@@ -64,24 +65,26 @@ export const columns: ColumnDef<Appointment>[] = [
 		id: "actions",
 		header: () => <div className="pl-4">Actions</div>,
 		cell: ({ row: { original: data } }) => {
-			return (
-				<div className="flex gap-1">
-					<AppointmentModal
-						type="update"
-						patientId={data.patient.$id}
-						userId={data.userId}
-						appointment={data}
-						isReadonly={true}
-					/>
-					<AppointmentModal
-						type="cancel"
-						patientId={data.patient.$id}
-						userId={data.userId}
-						appointment={data}
-						isDisabled={data?.status === "completed"}
-					/>
-				</div>
-			);
+			if (["scheduled", "pending", "cancelled"].includes(data.status))
+				return (
+					<div className="flex gap-1">
+						<AppointmentModal
+							type="schedule"
+							patientId={data.patient.$id}
+							userId={data.userId}
+							appointment={data}
+							isDisabled={data.status !== "cancelled"}
+						/>
+						<AppointmentModal
+							type="cancel"
+							patientId={data.patient.$id}
+							userId={data.userId}
+							appointment={data}
+							isDisabled={!["scheduled", "pending"].includes(data.status)}
+						/>
+					</div>
+				);
+			return null;
 		},
 	},
 ];

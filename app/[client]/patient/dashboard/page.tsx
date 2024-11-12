@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import Button from "@/components/ButtonAtom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -13,13 +14,14 @@ import {
 	BookHeart,
 	LifeBuoy,
 	SquareMenu,
+	ReceiptText,
 } from "lucide-react";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import RegistrationSkeleton from "@/components/skeleton/registrationSkeleton";
 
 export default function PatientDashboard() {
-	// { searchParams }: SearchParamProps
-	// Read user data from session - server side.
-	// const session = await auth();
+	const { data: sessionData } = useSession();
 	// Menu items.
 	const items = [
 		{
@@ -36,6 +38,11 @@ export default function PatientDashboard() {
 			title: "Reports",
 			url: "#",
 			icon: Calendar,
+		},
+		{
+			title: "Billing details",
+			url: "#",
+			icon: ReceiptText,
 		},
 		{
 			title: "Settings",
@@ -58,15 +65,10 @@ export default function PatientDashboard() {
 
 	const getSidebarMainContent = () => {
 		if (selectedOption === "Account")
-			return (
-				<RegisterForm
-					user={{
-						$id: "1",
-						name: "Pratap",
-						email: "test@gmail.com",
-						phone: "+918886887127",
-					}}
-				/>
+			return sessionData?.user ? (
+				<RegisterForm user={sessionData?.user} />
+			) : (
+				<RegistrationSkeleton />
 			);
 		else if (selectedOption === "Appointments") return <AppointmentTable />;
 		return null;
@@ -88,9 +90,11 @@ export default function PatientDashboard() {
 				<section className="w-full md:w-[70%] p-2 md:p-10">
 					{getSidebarMainContent()}
 				</section>
-				<Button className="hidden absolute w-fit mt-8 p-5 md:flex right-36  ">
-					Book a New Appointment
-				</Button>
+				<Link href={"/fortis/patient/appointment"}>
+					<Button className="hidden absolute w-fit mt-8 p-5 md:flex right-36">
+						Book a New Appointment
+					</Button>
+				</Link>
 			</SidebarProvider>
 		</div>
 	);

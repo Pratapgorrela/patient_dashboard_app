@@ -17,15 +17,18 @@ import {
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
 import Image from "next/image";
+import { Skeleton } from "../ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
+	isLoading = false,
 }: DataTableProps<TData, TValue>) {
 	const table = useReactTable({
 		data,
@@ -33,6 +36,17 @@ export function DataTable<TData, TValue>({
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 	});
+
+	const renderSkeleton = () =>
+		[1, 2, 3].map(() => (
+			<TableRow>
+				{columns.map(() => (
+					<TableCell key={1}>
+						<Skeleton className="h-[125px]" />
+					</TableCell>
+				))}
+			</TableRow>
+		));
 
 	return (
 		<div className="data-table">
@@ -56,7 +70,7 @@ export function DataTable<TData, TValue>({
 					))}
 				</TableHeader>
 				<TableBody>
-					{table.getRowModel().rows?.length ? (
+					{table.getRowModel().rows?.length && !isLoading ? (
 						table.getRowModel().rows.map((row) => (
 							<TableRow
 								key={row.id}
@@ -69,6 +83,8 @@ export function DataTable<TData, TValue>({
 								))}
 							</TableRow>
 						))
+					) : isLoading ? (
+						renderSkeleton()
 					) : (
 						<TableRow>
 							<TableCell colSpan={columns.length} className="h-24 text-center">

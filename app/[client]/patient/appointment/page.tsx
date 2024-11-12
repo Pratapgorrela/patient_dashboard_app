@@ -1,16 +1,19 @@
 import Image from "next/image";
 import AppointmentForm from "@/features/userapp/components/forms/AppointmentForm";
-import { getPatient } from "@/features/userapp/db/actions/patient.actions";
+import { auth } from "@/auth";
+import { getAppointment } from "@/features/userapp/db/actions/appointment.actions";
+import { AppointmentActionsType } from "@/constants";
 
-const user = {
-	id: "6789",
-	name: "pratap",
-	email: "test@gamil.com",
-	phone: "+918887665128",
-};
+export const revalidate = 0;
+export default async function NewAppointment({
+	searchParams,
+}: SearchParamProps) {
+	const appointmentId = (searchParams?.appointmentId as string) || "";
+	const appointment = appointmentId
+		? await getAppointment(appointmentId)
+		: null;
+	const session = await auth();
 
-export default async function NewAppointment() {
-	const patient = await getPatient(user?.id);
 	return (
 		<div className="flex h-screen max-h-screen">
 			<section className="remove-scrollbar container my-auto">
@@ -23,9 +26,13 @@ export default async function NewAppointment() {
 						className="mb-12 h-10 w-fit"
 					/>
 					<AppointmentForm
-						type="create"
-						userId={user.id}
-						patientId={patient?.$id}
+						type={
+							appointment
+								? AppointmentActionsType.UPDATE.key
+								: AppointmentActionsType.CREATE.key
+						}
+						user={session?.user}
+						appointment={appointment}
 					/>
 					<p className="copyright py-12">© 2024 CarePulse</p>
 				</div>

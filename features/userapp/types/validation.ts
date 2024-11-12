@@ -1,3 +1,4 @@
+import { AppointmentActionsType } from "@/constants";
 import { z } from "zod";
 
 export const UserSignupFormValidation = z.object({
@@ -5,20 +6,19 @@ export const UserSignupFormValidation = z.object({
 		.string()
 		.min(2, "Name must be at least 2 characters")
 		.max(50, "Name must be at most 50 characters"),
-	email: z.string().email("Invalid email address"),
+	email: z.string().email("Invalid email address").optional(),
 	phone: z
 		.string()
-		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+		.refine((phone) => /^\+\d{12}$/.test(phone), "Invalid phone number"),
 });
 
 export const UserLoginFormValidation = z.object({
 	phone: z
 		.string()
-		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+		.refine((phone) => /^\+\d{12}$/.test(phone), "Invalid phone number"),
 });
 
 export const PatientFormValidation = z.object({
-	allergies: z.string().optional(),
 	name: z
 		.string()
 		.min(2, "Name must be at least 2 characters")
@@ -26,36 +26,34 @@ export const PatientFormValidation = z.object({
 	email: z.string().email("Invalid email address"),
 	phone: z
 		.string()
-		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
-	birthDate: z.coerce.date(),
+		.refine((phone) => /^\+\d{12}$/.test(phone), "Invalid phone number"),
+	birthDate: z.coerce.date().optional(),
 	gender: z.enum(["male", "female", "other"]),
 	address: z
 		.string()
 		.min(5, "Address must be at least 5 characters")
-		.max(500, "Address must be at most 500 characters"),
+		.max(500, "Address must be at most 500 characters")
+		.or(z.literal("")),
 	occupation: z
 		.string()
-		.min(2, "Occupation must be at least 2 characters")
-		.max(500, "Occupation must be at most 500 characters"),
+		.min(3, "Occupation must be at least 3 characters")
+		.max(500, "Occupation must be at most 500 characters")
+		.or(z.literal("")),
 	emergencyContactName: z
-		.string()
-		.min(2, "Contact name must be at least 2 characters")
-		.max(50, "Contact name must be at most 50 characters"),
+		.union([
+			z.string().min(3, "Emergency contact name must be at least 3 characters"),
+			z.string().length(0),
+		])
+		.optional(),
 	emergencyContactNumber: z
 		.string()
-		.refine(
-			(emergencyContactNumber) => /^\+\d{10,15}$/.test(emergencyContactNumber),
-			"Invalid phone number"
-		),
-	primaryPhysician: z.string().min(2, "Select at least one doctor"),
-	insuranceProvider: z
-		.string()
-		.min(2, "Insurance name must be at least 2 characters")
-		.max(50, "Insurance name must be at most 50 characters"),
-	insurancePolicyNumber: z
-		.string()
-		.min(2, "Policy number must be at least 2 characters")
-		.max(50, "Policy number must be at most 50 characters"),
+		.regex(/^\+\d{12}$/, { message: "Invalid phone number" })
+		.optional()
+		.or(z.literal("")),
+	allergies: z.string().optional(),
+	primaryPhysicianId: z.string().optional(),
+	insuranceProvider: z.string().optional(),
+	insurancePolicyNumber: z.string().optional(),
 	currentMedication: z.string().optional(),
 	familyMedicalHistory: z.string().optional(),
 	pastMedicalHistory: z.string().optional(),
@@ -89,17 +87,14 @@ export const CreateAppointmentSchema = z.object({
 		.max(50, "Name must be at most 50 characters"),
 	phone: z
 		.string()
-		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+		.refine((phone) => /^\+\d{12}$/.test(phone), "Invalid phone number"),
 	email: z.string().email("Invalid email address").optional(),
 	gender: z.enum(["male", "female", "other"]),
-	primaryPhysicianId: z
-		.string()
-		.min(2, "Select at least one doctor")
-		.optional(),
+	primaryPhysicianId: z.string().optional(),
 	schedule: z.coerce.date(),
 	reason: z
 		.string()
-		.min(2, "Reason must be at least 2 characters")
+		.min(2, "Please provide the reason")
 		.max(500, "Reason must be at most 500 characters"),
 	note: z.string().optional(),
 	cancellationReason: z.string().optional(),
@@ -112,10 +107,10 @@ export const ScheduleAppointmentSchema = z.object({
 		.max(50, "Name must be at most 50 characters"),
 	phone: z
 		.string()
-		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+		.refine((phone) => /^\+\d{12}$/.test(phone), "Invalid phone number"),
 	email: z.string().email("Invalid email address").optional(),
 	gender: z.enum(["male", "female", "other"]),
-	primaryPhysicianId: z.string().min(2, "Select at least one doctor"),
+	primaryPhysicianId: z.string().min(2, "Please select doctor").optional(),
 	schedule: z.coerce.date(),
 	reason: z.string(),
 	note: z.string().optional(),
@@ -129,13 +124,10 @@ export const CancelAppointmentSchema = z.object({
 		.max(50, "Name must be at most 50 characters"),
 	phone: z
 		.string()
-		.refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
+		.refine((phone) => /^\+\d{12}$/.test(phone), "Invalid phone number"),
 	email: z.string().email("Invalid email address").optional(),
 	gender: z.enum(["male", "female", "other"]),
-	primaryPhysicianId: z
-		.string()
-		.min(2, "Select at least one doctor")
-		.optional(),
+	primaryPhysicianId: z.string().optional(),
 	schedule: z.coerce.date(),
 	reason: z.string(),
 	note: z.string().optional(),
@@ -147,10 +139,13 @@ export const CancelAppointmentSchema = z.object({
 
 export function getAppointmentSchema(type: string) {
 	switch (type) {
-		case "create":
+		case AppointmentActionsType.CREATE.key:
+		case AppointmentActionsType.UPDATE.key:
 			return CreateAppointmentSchema;
-		case "cancel":
+
+		case AppointmentActionsType.CANCEL.key:
 			return CancelAppointmentSchema;
+
 		default:
 			return ScheduleAppointmentSchema;
 	}

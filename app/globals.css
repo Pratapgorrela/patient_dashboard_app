@@ -247,7 +247,7 @@
     }
 
     .text-12-semibold {
-        @apply text-[12px] leading-[16px] font-semibold;
+        @apply text-[14px] leading-[16px] font-semibold;
     }
 
     /* =====  SHADCN OVERRIDES */
@@ -324,7 +324,7 @@
     }
 
     .shad-otp-slot {
-        @apply text-36-bold justify-center flex border border-dark-500 rounded-lg size-16 gap-4 !important;
+        @apply text-36-bold justify-center flex border border-dark-500 rounded-lg h-12 w-12 md:w-16 md:h-16 gap-4 !important;
     }
 
     .shad-alert-dialog {

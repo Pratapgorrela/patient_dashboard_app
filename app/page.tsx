@@ -27,7 +27,7 @@ export default function MainPage() {
 		try {
 			console.log("values=>>", values);
 			// TODO: Save the selected value in state.
-			router.push(`/patients/${values.client}/signup`);
+			router.push(`/patient/${values.client}/signup`);
 		} catch (error) {
 			console.log(error);
 		} finally {

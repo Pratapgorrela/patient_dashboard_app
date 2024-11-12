@@ -1,39 +1,50 @@
 declare interface CreateUserParams {
 	name: string;
-	email: string;
+	email?: string;
 	phone: string;
 }
 
-declare interface User extends CreateUserParams {
+declare interface UserObj extends CreateUserParams {
 	$id: string;
 }
 
-declare interface RegisterUserParams extends CreateUserParams {
+declare interface RegisterPatientParams extends CreateUserParams {
 	userId: string;
-	birthDate: Date;
+	email: string;
 	gender: Gender;
-	address: string;
-	occupation: string;
-	emergencyContactName: string;
-	emergencyContactNumber: string;
-	primaryPhysician: string;
-	insuranceProvider: string;
-	insurancePolicyNumber: string;
-	allergies?: string | undefined;
-	currentMedication?: string | undefined;
-	familyMedicalHistory?: string | undefined;
-	pastMedicalHistory?: string | undefined;
-	identificationType?: string | undefined;
-	identificationNumber?: string | undefined;
-	identificationDocument: FormData | undefined;
+	birthDate?: Date;
+	address?: string;
+	occupation?: string;
+	emergencyContactName?: string;
+	emergencyContactNumber?: string;
+	primaryPhysician?: string;
+	insuranceProvider?: string;
+	insurancePolicyNumber?: string;
+	allergies?: string;
+	currentMedication?: string;
+	familyMedicalHistory?: string;
+	pastMedicalHistory?: string;
+	identificationType?: string;
+	identificationNumber?: string;
+	identificationDocument?: FormData;
+	treatmentConsent: boolean;
+	disclosureConsent: boolean;
 	privacyConsent: boolean;
+	// createdBy: string;
+	// updatedBy?: string;
 }
+
+declare type UpdatePatientParams = {
+	patientId: string;
+	patient: Patient;
+	identificationDocument: FormData;
+};
 
 declare type CreateAppointmentParams = {
 	clientId: string;
 	userId: string;
 	patientId?: string;
-	primaryPhysicianId?: string;
+	primaryPhysician?: string;
 	name: string;
 	phone: string;
 	email?: string;
@@ -42,6 +53,7 @@ declare type CreateAppointmentParams = {
 	schedule: Date;
 	status: Status;
 	note?: string;
+	createdBy: string;
 };
 
 declare type UpdateAppointmentParams = {
@@ -49,4 +61,5 @@ declare type UpdateAppointmentParams = {
 	userId: string;
 	appointment: Appointment;
 	type: string;
+	updatedBy?: string;
 };

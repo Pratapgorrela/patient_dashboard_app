@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ID, Query } from "node-appwrite";
 import {
 	account,
@@ -21,7 +22,9 @@ export const createUser = async (user: CreateUserParams) => {
 		return parseStringify(newUser);
 	} catch (error: unknown) {
 		if (error && error?.["code"] === 409) {
-			const documents = await users.list([Query.equal("email", [user.email])]);
+			const documents = await users.list([
+				Query.equal("email", [user?.email || ""]),
+			]);
 			return documents?.users?.[0];
 		}
 	}
@@ -36,10 +39,24 @@ export const getUser = async (userId: string) => {
 	}
 };
 
+export const getUserByPhone = async (phone: string) => {
+	try {
+		const user = await databases.listDocuments(
+			dbConfig.DATABASE_ID!,
+			dbConfig.PATIENT_COLLETION_ID!,
+			[Query.equal("phone", phone)]
+		);
+		return parseStringify(user.documents[0]);
+	} catch (error: any) {
+		console.log(error);
+		return [];
+	}
+};
+
 export const registerPatient = async ({
 	identificationDocument,
 	...patient
-}: RegisterUserParams) => {
+}: RegisterPatientParams) => {
 	try {
 		let file;
 		if (identificationDocument) {
@@ -70,6 +87,46 @@ export const registerPatient = async ({
 	}
 };
 
+export const updatePatient = async ({
+	patientId,
+	patient,
+	identificationDocument,
+}: UpdatePatientParams) => {
+	try {
+		let file;
+		if (identificationDocument) {
+			const inputFile = InputFile.fromBuffer(
+				identificationDocument?.get("blobFile") as Blob,
+				identificationDocument?.get("fileName") as string
+			);
+
+			file = await storage.createFile(
+				dbConfig.BUCKET_ID!,
+				ID.unique(),
+				inputFile
+			);
+			patient = {
+				...patient,
+				identificationDocumentId: file?.$id || null,
+				identificationDocumentUrl: `${dbConfig.ENDPOINT}/storage/buckets/${dbConfig.BUCKET_ID}/files/${file?.$id}/view?project=${dbConfig.PROJECT_ID}`,
+			};
+		}
+		const updatePatient = await databases.updateDocument(
+			dbConfig.DATABASE_ID!,
+			dbConfig.PATIENT_COLLETION_ID!,
+			patientId,
+			patient
+		);
+
+		if (!updatePatient) {
+			throw new Error(`Patient not found!`);
+		}
+		return parseStringify(updatePatient);
+	} catch (error: unknown) {
+		console.log("error", error);
+	}
+};
+
 export const getPatient = async (userId: string) => {
 	try {
 		const patient = await databases.listDocuments(
@@ -77,11 +134,38 @@ export const getPatient = async (userId: string) => {
 			dbConfig.PATIENT_COLLETION_ID!,
 			[Query.equal("userId", userId)]
 		);
-		return parseStringify(patient.documents[0]);
+		return parseStringify(patient?.documents?.[0]);
 	} catch (error: unknown) {
 		console.log(error);
 	}
 };
+
+// export const getDoctors = async () => {
+// 	try {
+// 		const doctors = await databases.listDocuments(
+// 			dbConfig.DATABASE_ID!,
+// 			dbConfig.DOCTOR_COLLECTION_ID!,
+// 			[]
+// 		);
+// 		return doctors.documents;
+// 	} catch (error: unknown) {
+// 		console.log(error);
+// 	}
+// };
+
+// export const createDoctor = async (doctor: CreateDoctorParams) => {
+// 	try {
+// 		const result = await databases.createDocument(
+// 			dbConfig.DATABASE_ID!,
+// 			dbConfig.DOCTOR_COLLECTION_ID!,
+// 			ID.unique(),
+// 			doctor
+// 		);
+// 		return parseStringify(result);
+// 	} catch (error: unknown) {
+// 		console.log(error);
+// 	}
+// };
 
 export const generatePhoneToken = async (phone: string) => {
 	try {
@@ -89,7 +173,7 @@ export const generatePhoneToken = async (phone: string) => {
 		return token;
 	} catch (error: unknown) {
 		console.log(error);
-		return null;
+		return error;
 	}
 };
 
