@@ -97,7 +97,7 @@ const PasskeyModal = ({
 									<FormLabel>One-Time Password</FormLabel>
 									<FormControl>
 										<InputOTP maxLength={6} {...field} autoFocus>
-											<InputOTPGroup className="shad-otp flex gap-1">
+											<InputOTPGroup className="shad-otp flex gap-2">
 												<InputOTPSlot index={0} className="shad-otp-slot" />
 												<InputOTPSlot index={1} className="shad-otp-slot" />
 												<InputOTPSlot index={2} className="shad-otp-slot" />

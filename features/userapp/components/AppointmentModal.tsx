@@ -15,17 +15,20 @@ import AppointmentForm from "./forms/AppointmentForm";
 
 const AppointmentModal = ({
 	type,
-	patientId,
-	userId,
 	appointment,
+	isDisabled = false,
+	isReadonly = false,
 }: {
-	type: "schedule" | "cancel";
+	type: "schedule" | "cancel" | "update";
 	patientId: string;
 	userId: string;
 	appointment: Appointment;
+	isDisabled?: boolean;
+	isReadonly?: boolean;
 }) => {
 	const statusMapper = { schedule: "scheduled", cancel: "cancelled" };
-	const isActionDisabled = statusMapper?.[type] === appointment?.status;
+	const isActionDisabled =
+		isDisabled || statusMapper?.[type] === appointment?.status;
 
 	const [open, setIsopen] = useState(false);
 	const [initialRenderComplete, setInitialRenderComplete] = useState(false);
@@ -46,26 +49,32 @@ const AppointmentModal = ({
 					<Button
 						variant="ghost"
 						className={`capitalize ${
-							type === "schedule" ? "text-green-500" : ""
+							type === "schedule" || isReadonly ? "text-green-500" : ""
 						}`}
 						disabled={isActionDisabled}>
-						{type}
+						{isReadonly ? "details" : type}
 					</Button>
 				)}
 			</DialogTrigger>
-			<DialogContent className="shad-dialog sm:max-w-md">
+			<DialogContent
+				className={`shad-dialog sm:max-w-md ${
+					type !== "cancel" && "md:max-w-7xl"
+				}`}>
 				<DialogHeader className="mb-4 space-y-3">
-					<DialogTitle className="capitalize">{type} Appointment</DialogTitle>
-					<DialogDescription>
-						Please fill in the following details to {type} an appointment
-					</DialogDescription>
+					<DialogTitle className="capitalize md:text-2xl">
+						{!isReadonly ? type : ""} Appointment {!isReadonly ? "" : " Details"}
+					</DialogTitle>
+					{!isReadonly && (
+						<DialogDescription className="md:text-lg">
+							Please fill in the following details to {type} an appointment
+						</DialogDescription>
+					)}
 				</DialogHeader>
 				<AppointmentForm
-					userId={userId}
-					patientId={patientId}
 					type={type}
 					appointment={appointment}
 					setOpen={setIsopen}
+					isReadonly={isReadonly}
 				/>
 			</DialogContent>
 		</Dialog>

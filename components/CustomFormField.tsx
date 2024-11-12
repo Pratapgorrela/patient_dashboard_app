@@ -27,12 +27,14 @@ import { Checkbox } from "./ui/checkbox";
 import { FormFieldType } from "@/constants";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
+import { ReactNode } from "react";
 
 interface CustomProps {
 	control: Control<any>;
 	fieldType: FormFieldType;
 	name: string;
-	label?: string;
+	label?: string | ReactNode;
+	required?: boolean;
 	optionLabel?: string;
 	placeholder?: string;
 	iconSrc?: string;
@@ -46,6 +48,7 @@ interface CustomProps {
 	selectKey?: string;
 	minDate?: Date;
 	maxDate?: Date;
+	onChange?: (value: any) => void;
 }
 
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
@@ -66,6 +69,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		disabled = false,
 		minDate = undefined,
 		maxDate = undefined,
+		onChange,
 	} = props;
 
 	switch (fieldType) {
@@ -86,6 +90,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 							{...field}
 							placeholder={placeholder}
 							className="shad-input border-0"
+							disabled={disabled}
 						/>
 					</FormControl>
 				</div>
@@ -109,12 +114,17 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 					<PhoneInput
 						placeholder={placeholder || "Enter phone number"}
 						value={field.value as string | undefined}
-						onChange={field.onChange}
+						onChange={(value) => {
+							// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+							onChange && onChange(value);
+							field.onChange(value);
+						}}
 						defaultCountry="IN"
 						countries={["IN"]}
 						international
 						className="input-phone"
 						countryCallingCodeEditable={false}
+						disabled={disabled}
 					/>
 				</FormControl>
 			);
@@ -128,6 +138,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 							checked={field.value}
 							onCheckedChange={field.onChange}
 							defaultChecked={true}
+							disabled={disabled}
 						/>
 						<label htmlFor={name} className="checkbox-label">
 							{label}
@@ -142,7 +153,8 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 					<RadioGroup
 						className="flex h-11 gap-6 xl:justify-between"
 						onValueChange={field.onChenge}
-						defaultValue={field.value}>
+						defaultValue={field.value}
+						disabled={disabled}>
 						{options?.map(({ label, value }) => (
 							<div key={value} className="radio-group">
 								<RadioGroupItem value={value} id={value} />
@@ -175,6 +187,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 							className="date-picker"
 							minDate={minDate}
 							maxDate={maxDate}
+							disabled={disabled}
 						/>
 					</FormControl>
 				</div>
@@ -183,7 +196,11 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		case FormFieldType.SELECT:
 			return (
 				<FormControl>
-					<Select onValueChange={field.onChange} defaultValue={field.value}>
+					<Select
+						onValueChange={field.onChange}
+						defaultValue={field.value}
+						value={field.value}
+						disabled={disabled}>
 						<SelectTrigger className="shad-select-trigger">
 							<SelectValue placeholder={placeholder} />
 						</SelectTrigger>
@@ -192,9 +209,9 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 								options.map((option, index: number) => (
 									<SelectItem key={index} value={option?.[selectKey]}>
 										<div className="flex cursor-pointer items-center gap-2">
-											{option?.imageSrc && (
+											{option?.profileImgUrl && (
 												<Image
-													src={option?.imageSrc}
+													src={option?.profileImgUrl}
 													alt={option?.[selectKey]}
 													width={32}
 													height={32}
@@ -219,7 +236,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 };
 
 const CustomFormField = (props: CustomProps) => {
-	const { control, fieldType, name, label } = props;
+	const { control, fieldType, name, label, required = false } = props;
 	return (
 		<FormField
 			control={control}
@@ -227,7 +244,10 @@ const CustomFormField = (props: CustomProps) => {
 			render={({ field }) => (
 				<FormItem className="flex-1">
 					{fieldType !== FormFieldType.CHECKBOX && label && (
-						<FormLabel>{label}</FormLabel>
+						<FormLabel className="text-base">
+							{label}
+							{required ? <span className="text-red-800 ml-1">*</span> : null}
+						</FormLabel>
 					)}
 					<RenderField field={field} props={props} />
 					<FormMessage className="shad-error" />

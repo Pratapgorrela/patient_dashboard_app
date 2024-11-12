@@ -15,6 +15,24 @@ export enum FormFieldType {
 	RADIO_GROUP = "radiogroup",
 }
 
+export const AppointmentActionsType: {
+	[key: string]: {
+		key: AppointmentActionType;
+		value: string;
+		label: string;
+	};
+} = {
+	CREATE: { key: "create", value: "created", label: "Create Appointment" },
+	UPDATE: { key: "update", value: "updated", label: "Reschedule Appointment" },
+	SCHEDULE: {
+		key: "schedule",
+		value: "scheduled",
+		label: "Schedule Appointment",
+	},
+	CANCEL: { key: "cancel", value: "cancelled", label: "Cancel Appointment" },
+	COMPLETE: { key: "complete", value: "completed", label: "" },
+};
+
 export const UserTypes = [
 	{
 		Id: 1,
@@ -107,15 +125,13 @@ export const Doctors = [
 	},
 ];
 
-export const StatusIcon = {
-	scheduled: "/assets/icons/check.svg",
-	pending: "/assets/icons/pending.svg",
-	cancelled: "/assets/icons/cancelled.svg",
+export const StatusMapper = {
+	create: "pending",
+	update: "pending",
+	pending: "pending",
+	schedule: "scheduled",
+	complete: "completed",
+	cancel: "cancelled",
 };
 
-export const StatusMapper = {
-	schedule: "scheduled",
-	cancel: "cancelled",
-	pending: "pending",
-	complete: "completed",
-};
+export const GUEST_USER_ID = "672ca270002863181621";

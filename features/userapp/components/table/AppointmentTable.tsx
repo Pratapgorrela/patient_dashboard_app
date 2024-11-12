@@ -5,6 +5,12 @@ import { DataTable } from "@/components/table/DataTable";
 import { getRecentAppointmentList } from "@/features/userapp/db/actions/appointment.actions";
 import { Appointment } from "@/types/appwrite.type";
 import { Models } from "node-appwrite";
+import {
+	CircleCheckBig,
+	CalendarCheck2,
+	TriangleAlert,
+	Hourglass,
+} from "lucide-react";
 
 const AppointmentTable = () => {
 	const [appointments, setAppointments] = useState<
@@ -12,50 +18,108 @@ const AppointmentTable = () => {
 				documents: Models.Document[];
 				scheduledCount: number;
 				pendingCount: number;
+				completedCount: number;
 				cancelledCount: number;
 				totalCount: number;
 		  }
 		| undefined
 	>();
+	const [isLoading, setIsLoading] = useState(true);
+	const [initialRenderComplete, setInitialRenderComplete] = useState(false);
 
 	useEffect(() => {
-		async function getAppointments() {
-			const appointmentsData = await getRecentAppointmentList();
-			setAppointments(appointmentsData);
+		setInitialRenderComplete(true);
+	}, []);
+
+	useEffect(() => {
+		try {
+			const getAppointments = async () => {
+				const appointmentsData = await getRecentAppointmentList();
+				setIsLoading(false);
+				setAppointments(appointmentsData);
+			};
+			getAppointments();
+		} catch (error) {
+			console.log(error);
+			setIsLoading(false);
 		}
-		getAppointments();
 	}, []);
 
 	return (
 		<div className="mx-auto flex max-w-7xl flex-col space-y-14">
 			<main className="admin-main">
 				<section className="w-full flex justify-center space-y-4">
-					<h1 className="md:hidden header">Appointments</h1>
+					<h1 className="md:hidden header !text-lg mt-2">Appointments</h1>
 				</section>
 				<section className="admin-stat">
 					<StatCard
-						type="appointments"
+						type="scheduled"
 						count={appointments?.scheduledCount || 0}
-						label="Completed appointments"
-						icon="/assets/icons/appointments.svg"
+						label="Scheduled appointments"
+						icon={
+							<CalendarCheck2
+								height={32}
+								width={32}
+								stroke="#FFD147"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
+						}
 					/>
 					<StatCard
 						type="pending"
 						count={appointments?.pendingCount || 0}
 						label="Pending appointments"
-						icon="/assets/icons/pending.svg"
+						icon={
+							<Hourglass
+								height={32}
+								width={32}
+								stroke="#79B5EC"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
+						}
+					/>
+					<StatCard
+						type="completed"
+						count={appointments?.completedCount || 0}
+						label="completed appointments"
+						icon={
+							<CircleCheckBig
+								height={32}
+								width={32}
+								stroke="#4AC97E"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
+						}
 					/>
 					<StatCard
 						type="cancelled"
 						count={appointments?.cancelledCount || 0}
 						label="Cancelled appointments"
-						icon="/assets/icons/cancelled.svg"
+						icon={
+							<TriangleAlert
+								height={32}
+								width={32}
+								stroke="#FF4F4E"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
+						}
 					/>
 				</section>
-				<DataTable
-					columns={columns}
-					data={(appointments?.documents as Appointment[]) || []}
-				/>
+				{initialRenderComplete && (
+					<DataTable
+						columns={columns}
+						data={(appointments?.documents as Appointment[]) || []}
+						isLoading={isLoading}
+					/>
+				)}
 			</main>
 		</div>
 	);

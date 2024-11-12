@@ -1,19 +1,18 @@
 import { Button } from "@/components/ui/button";
-import { Doctors } from "@/constants";
 import { getAppointment } from "@/features/userapp/db/actions/appointment.actions";
 import { formatDateTime } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
-const Success = async ({
-	params: { userId },
-	searchParams,
-}: SearchParamProps) => {
+export const revalidate = 0;
+const Success = async ({ searchParams }: SearchParamProps) => {
+	const isUpdated = (searchParams?.isUpdated as string) === "true" || false;
 	const appointmentId = (searchParams?.appointmentId as string) || "";
 	const appointment = await getAppointment(appointmentId);
-	const doctor = Doctors.find(
-		(doc) => doc.name === appointment?.primaryPhysician
-	);
+	const doctor = appointment?.primaryPhysician?.$id
+		? appointment?.primaryPhysician
+		: null;
+
 	return (
 		<div className="flex h-screen max-h-screen px-[5%]">
 			<div className="success-img">
@@ -35,22 +34,24 @@ const Success = async ({
 					/>
 					<h2 className="header mb-6 max-w-[600px] text-center">
 						Your <span className="text-green-500">appointment request</span> has
-						been successfully submitted!
+						been successfully {`${isUpdated ? "updated" : "submitted"}`}!
 					</h2>
 					<p>We will be in touch shortly to confirm.</p>
 				</section>
 				<section className="request-details">
 					<p>Requested appointment details:</p>
-					<div className="flex items-center gap-3">
-						<Image
-							src={doctor?.imageSrc || ""}
-							alt="doctor"
-							width={100}
-							height={100}
-							className="size-6"
-						/>
-						<p className="whitespace-nowrap">Dr. {doctor?.name}</p>
-					</div>
+					{doctor && (
+						<div className="flex items-center gap-3">
+							<Image
+								src={doctor?.profileImgUrl || ""}
+								alt="doctor"
+								width={100}
+								height={100}
+								className="size-6"
+							/>
+							<p className="whitespace-nowrap">Dr. {doctor?.name}</p>
+						</div>
+					)}
 					<div className="flex gap-2">
 						<Image
 							src="/assets/icons/calendar.svg"
@@ -61,11 +62,18 @@ const Success = async ({
 						<p>{formatDateTime(appointment.schedule).dateTime}</p>
 					</div>
 				</section>
-				<Button variant="outline" className="shad-primary-btn" asChild>
-					<Link href={`/patients/${userId}/new-appointment`}>
-						New Appointment
-					</Link>
-				</Button>
+				<div className="flex gap-6">
+					<Button variant="outline" className="shad-primary-btn" asChild>
+						<Link href={`/fortis/patient/appointment`}>New Appointment</Link>
+					</Button>
+					<Button variant="ghost" className="shad-gray-btn" type="button">
+						<Link
+							href={`/fortis/patient/appointment?appointmentId=${appointment?.$id}`}>
+							Update Appointment
+						</Link>
+					</Button>
+				</div>
+
 				<p className="copyright py-12">© 2024 CarePulse</p>
 			</div>
 		</div>

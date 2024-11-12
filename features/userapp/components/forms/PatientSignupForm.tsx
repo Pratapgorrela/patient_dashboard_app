@@ -34,7 +34,7 @@ const PatientSignupForm = () => {
 		try {
 			const user = await createUser(userData);
 			await handleCredentialsSignIn(userData);
-			if (user) router.push(`/patients/fortis/register`);
+			if (user) router.push(`/patient/fortis/register`);
 			setIsLoading(false);
 		} catch (error) {
 			console.log(error);
@@ -43,7 +43,7 @@ const PatientSignupForm = () => {
 	}
 
 	const handleLogin = () => {
-		router.push(`/patients/fortis/login`);
+		router.push(`/fortis/patient/login`);
 	};
 
 	return (
@@ -87,8 +87,13 @@ const PatientSignupForm = () => {
 						placeholder="123 456 7890"
 					/>
 					<Button isLoading={isLoading}>Get Started</Button>
-					<Button isLoading={isLoading} onClick={handleLogin} type="button">
-						Login
+					<Button
+						variant="ghost"
+						className="shad-gray-btn"
+						onClick={handleLogin}
+						type="button">
+						{`Already have a account? `}
+						<b>Login</b>
 					</Button>
 				</form>
 			</Form>

@@ -8,6 +8,15 @@ interface ButtonProps {
 	children: React.ReactNode;
 	type?: "button" | "submit" | "reset";
 	onClick?: () => void;
+	variant?:
+		| "default"
+		| "destructive"
+		| "outline"
+		| "secondary"
+		| "ghost"
+		| "link"
+		| null
+		| undefined;
 }
 
 const ButtonAtom = ({
@@ -16,13 +25,19 @@ const ButtonAtom = ({
 	className = "",
 	type = "submit",
 	onClick = () => null,
+	variant = "secondary",
 }: ButtonProps) => {
 	return (
 		<Button
 			type={type}
 			disabled={isLoading}
-			className={cn("shad-primary-btn w-full", className)}
-			onClick={onClick}>
+			className={cn(
+				{ "shad-primary-btn": variant === "secondary" },
+				"w-full text-base",
+				className
+			)}
+			onClick={onClick}
+			variant={variant}>
 			{isLoading ? (
 				<div className="flex items-center gap-4">
 					<Image

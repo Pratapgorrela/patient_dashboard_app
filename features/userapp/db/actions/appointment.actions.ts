@@ -2,26 +2,10 @@
 
 import { ID, Query } from "node-appwrite";
 import { databases, dbConfig } from "@/lib/types/appwrite.config";
-import { formatDateTime, parseStringify } from "@/lib/utils";
+import { parseStringify } from "@/lib/utils";
 import { Appointment } from "@/types/appwrite.type";
 import { revalidatePath } from "next/cache";
-import { sendSMSNotification } from "@/lib/actions/common.actions";
-
-export const createAppointment = async (
-	appointment: CreateAppointmentParams
-) => {
-	try {
-		const newAppointment = await databases.createDocument(
-			dbConfig.DATABASE_ID!,
-			dbConfig.APPOINTMENT_COLLECTION_ID!,
-			ID.unique(),
-			appointment
-		);
-		return parseStringify(newAppointment);
-	} catch (error: unknown) {
-		console.log(error);
-	}
-};
+// import { sendSMSNotification } from "@/lib/actions/common.actions";
 
 export const getAppointment = async (appointmentId: string) => {
 	try {
@@ -47,6 +31,7 @@ export const getRecentAppointmentList = async () => {
 		const initialCounts = {
 			scheduledCount: 0,
 			pendingCount: 0,
+			completedCount: 0,
 			cancelledCount: 0,
 		};
 
@@ -56,6 +41,8 @@ export const getRecentAppointmentList = async () => {
 					acc.scheduledCount += 1;
 				} else if (appointment.status === "pending") {
 					acc.pendingCount += 1;
+				} else if (appointment.status === "completed") {
+					acc.completedCount += 1;
 				} else if (appointment.status === "cancelled") {
 					acc.cancelledCount += 1;
 				}
@@ -72,12 +59,47 @@ export const getRecentAppointmentList = async () => {
 		return data;
 	} catch (err) {
 		console.log(err);
+		return {
+			totalCount: 0,
+			scheduledCount: 0,
+			pendingCount: 0,
+			completedCount: 0,
+			cancelledCount: 0,
+			documents: [],
+		};
+	}
+};
+
+export const createAppointment = async (
+	userId: string,
+	appointment: CreateAppointmentParams
+) => {
+	try {
+		const newAppointment = await databases.createDocument(
+			dbConfig.DATABASE_ID!,
+			dbConfig.APPOINTMENT_COLLECTION_ID!,
+			ID.unique(),
+			appointment
+		);
+
+		// const smsMessage = `Hi, it's Curepulse. ${`Your appointment has been created for ${
+		// 	formatDateTime(appointment.schedule!).dateTime
+		// } ${
+		// 	newAppointment.primaryPhysician
+		// 		? `with Dr.${newAppointment.primaryPhysician?.name} `
+		// 		: ""
+		// }`}  `;
+
+		// await sendSMSNotification(userId, smsMessage);
+		return parseStringify(newAppointment);
+	} catch (error: unknown) {
+		console.log(error);
 	}
 };
 
 export const updateAppointment = async ({
-	appointmentId,
 	userId,
+	appointmentId,
 	appointment,
 	type,
 }: UpdateAppointmentParams) => {
@@ -89,22 +111,25 @@ export const updateAppointment = async ({
 			appointment
 		);
 		if (!updateAppointment) {
-			throw new Error(`Appointment not found! ${type}`);
+			throw new Error(`Appointment not found!`);
 		}
 
-		const smsMessage = `Hi, it's Curepulse. ${
-			type === "schedule"
-				? `Your appointment has been scheduled for ${
-						formatDateTime(appointment.schedule!).dateTime
-				  } with Dr. ${appointment.primaryPhysician}`
-				: `We regret to inform you that your appointment has been cancelled for following reason: ${appointment.cancellationReason}`
-		}  `;
+		// const smsMessage = `Hi, it's Curepulse. ${
+		// 	type === "cancel"
+		// 		? `We regret to inform you that your appointment has been cancelled for following reason: ${appointment.cancellationReason}`
+		// 		: `Your appointment has been scheduled for ${
+		// 				formatDateTime(appointment.schedule!).dateTime
+		// 		  } ${
+		// 				appointment.primaryPhysician
+		// 					? `with Dr.${appointment.primaryPhysician?.name}`
+		// 					: ""
+		// 		  }`
+		// }  `;
 
-		await sendSMSNotification(userId, smsMessage);
-
-		revalidatePath("/admin");
+		// await sendSMSNotification(userId, smsMessage);
+		revalidatePath(`/fortis/patient/appointment/success`);
 		return parseStringify(updateAppointment);
 	} catch (error: unknown) {
-		console.log(error);
+		console.log("error", error);
 	}
 };
