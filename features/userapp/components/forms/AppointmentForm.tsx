@@ -24,6 +24,7 @@ import { Appointment } from "@/types/appwrite.type";
 import { addDays } from "date-fns";
 import { User } from "next-auth";
 import { getDoctorsList } from "@/features/docapp/db/doctor.actions";
+import { getIcons, ICON_NAMES } from "@/lib/service";
 
 const AppointmentForm = ({
 	type,
@@ -42,6 +43,7 @@ const AppointmentForm = ({
 	const [isLoading, setIsLoading] = useState(false);
 	const [doctors, setDoctors] = useState<CreateDoctorParams[] | []>([]);
 	const firstRender = useRef(true);
+	const icons = getIcons([ICON_NAMES.user, ICON_NAMES.email]);
 
 	const createAction = AppointmentActionsType.CREATE.key;
 	const updateAction = AppointmentActionsType.UPDATE.key;
@@ -196,9 +198,8 @@ const AppointmentForm = ({
 								name="name"
 								label="Full name"
 								placeholder="Full name"
-								iconSrc="/assets/icons/user.svg"
-								iconAlt="user"
-								disabled={isReadonly}
+								icon={icons?.[ICON_NAMES.user]}
+								disabled={isReadonly || type === updateAction}
 							/>
 							<CustomFormField
 								control={form.control}
@@ -207,7 +208,7 @@ const AppointmentForm = ({
 								name="phone"
 								label="Phone"
 								placeholder="123 456 7890"
-								disabled={isReadonly}
+								disabled={isReadonly || type === updateAction}
 							/>
 						</div>
 						<div className="flex flex-col gap-6 xl:flex-row">
@@ -217,9 +218,8 @@ const AppointmentForm = ({
 								name="email"
 								label="Email"
 								placeholder="email@gmail.com"
-								iconSrc="/assets/icons/email.svg"
-								iconAlt="email"
-								disabled={isReadonly}
+								icon={icons?.[ICON_NAMES.email]}
+								disabled={isReadonly || type === updateAction}
 							/>
 							<CustomFormField
 								control={form.control}
@@ -228,7 +228,7 @@ const AppointmentForm = ({
 								name="gender"
 								label="Gender"
 								options={GenderOptions}
-								disabled={isReadonly}
+								disabled={isReadonly || type === updateAction}
 							/>
 						</div>
 						<div className="flex flex-col gap-6 xl:flex-row">
@@ -290,13 +290,6 @@ const AppointmentForm = ({
 				)}
 				{!isReadonly && (
 					<div className="flex flex-col gap-6 xl:flex-row md:mt-20px ">
-						<Button
-							isLoading={isLoading}
-							className={`${
-								type === cancelAction ? "shad-danger-btn" : "shad-primary-btn"
-							} w-full md:p-6`}>
-							{getSubmitBtnLabel()}
-						</Button>
 						{type !== cancelAction && (
 							<Button
 								variant="ghost"
@@ -306,6 +299,13 @@ const AppointmentForm = ({
 								Cancel
 							</Button>
 						)}
+						<Button
+							isLoading={isLoading}
+							className={`${
+								type === cancelAction ? "shad-danger-btn" : "shad-primary-btn"
+							} w-full md:p-6`}>
+							{getSubmitBtnLabel()}
+						</Button>
 					</div>
 				)}
 			</form>

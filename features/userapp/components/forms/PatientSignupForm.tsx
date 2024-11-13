@@ -15,10 +15,12 @@ import {
 	// handleSignOut,
 } from "@/lib/actions/auth.actions";
 import { FormFieldType } from "@/constants";
+import { getIcons, ICON_NAMES } from "@/lib/service";
 
 const PatientSignupForm = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
+	const icons = getIcons([ICON_NAMES.user, ICON_NAMES.email]);
 
 	const form = useForm<z.infer<typeof UserSignupFormValidation>>({
 		resolver: zodResolver(UserSignupFormValidation),
@@ -34,10 +36,11 @@ const PatientSignupForm = () => {
 		try {
 			const user = await createUser(userData);
 			await handleCredentialsSignIn(userData);
-			if (user) router.push(`/patient/fortis/register`);
 			setIsLoading(false);
+			if (user) router.push(`/patient/fortis/dashboard`);
 		} catch (error) {
 			console.log(error);
+		} finally {
 			setIsLoading(false);
 		}
 	}
@@ -66,25 +69,24 @@ const PatientSignupForm = () => {
 						fieldType={FormFieldType.INPUT}
 						name="name"
 						label="Full name"
-						placeholder="Pratap"
-						iconSrc="/assets/icons/user.svg"
-						iconAlt="user"
-					/>
-					<CustomFormField
-						control={form.control}
-						fieldType={FormFieldType.INPUT}
-						name="email"
-						label="Email"
-						placeholder="pratap@gmail.com"
-						iconSrc="/assets/icons/email.svg"
-						iconAlt="email"
+						placeholder="Full name"
+						icon={icons?.[ICON_NAMES.user]}
+						required
 					/>
 					<CustomFormField
 						control={form.control}
 						fieldType={FormFieldType.PHONE_INPUT}
 						name="phone"
 						label="Phone number"
-						placeholder="123 456 7890"
+						required
+					/>
+					<CustomFormField
+						control={form.control}
+						fieldType={FormFieldType.INPUT}
+						name="email"
+						label="Email"
+						placeholder="Email"
+						icon={icons?.[ICON_NAMES.email]}
 					/>
 					<Button isLoading={isLoading}>Get Started</Button>
 					<Button

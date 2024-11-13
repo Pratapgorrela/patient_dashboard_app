@@ -13,4 +13,5 @@ export const app_constants = {
 		colour: "#800000",
 		icon: CircleX,
 	},
+	PROTECTED_ROUTES: ["/dashboard"],
 };

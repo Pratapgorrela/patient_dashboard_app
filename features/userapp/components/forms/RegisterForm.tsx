@@ -20,6 +20,7 @@ import { User } from "next-auth";
 import { Patient } from "@/types/appwrite.type";
 import AlertNote from "@/components/AlertNote";
 import { app_constants } from "@/constants/config";
+import { getIcons, ICON_NAMES } from "@/lib/service";
 
 const RegisterForm = ({ user }: { user?: User }) => {
 	const { DEFAULT_ALERT_CONFIG, ERROR_ALERT_CONFIG } = app_constants;
@@ -31,6 +32,8 @@ const RegisterForm = ({ user }: { user?: User }) => {
 	const firstRender = useRef(true);
 	const isIdendificationDocUpdated = useRef(false);
 	const isSuccess = useRef(false);
+
+	const icons = getIcons([ICON_NAMES.user, ICON_NAMES.email]);
 
 	const form = useForm<z.infer<typeof PatientFormValidation>>({
 		resolver: zodResolver(PatientFormValidation),
@@ -137,8 +140,7 @@ const RegisterForm = ({ user }: { user?: User }) => {
 						fieldType={FormFieldType.INPUT}
 						name="name"
 						label="Full name"
-						iconSrc="/assets/icons/user.svg"
-						iconAlt="user"
+						icon={icons?.[ICON_NAMES.user]}
 						required
 						disabled
 					/>
@@ -148,8 +150,7 @@ const RegisterForm = ({ user }: { user?: User }) => {
 							fieldType={FormFieldType.INPUT}
 							name="email"
 							label="Email"
-							iconSrc="/assets/icons/email.svg"
-							iconAlt="email"
+							icon={icons?.[ICON_NAMES.email]}
 							required
 						/>
 						<CustomFormField
