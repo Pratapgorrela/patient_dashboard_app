@@ -13,7 +13,6 @@ import {
 	InputOTPGroup,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
-import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -29,6 +28,7 @@ import {
 import { UserOtpValidation } from "./validations";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { getIcon, ICON_NAMES } from "@/lib/service";
 
 const PasskeyModal = ({
 	validatePasskey,
@@ -46,6 +46,11 @@ const PasskeyModal = ({
 	const closeModal = () => {
 		setOpen(false);
 	};
+
+	const closeIcon = getIcon(ICON_NAMES.close, {
+		onClick: closeModal,
+		className: "cursor-pointer",
+	});
 
 	const form = useForm<z.infer<typeof UserOtpValidation>>({
 		resolver: zodResolver(UserOtpValidation),
@@ -72,14 +77,7 @@ const PasskeyModal = ({
 				<AlertDialogHeader>
 					<AlertDialogTitle className="flex items-start justify-between">
 						Login Access Verification
-						<Image
-							src="/assets/icons/close.svg"
-							alt="close"
-							width={20}
-							height={20}
-							onClick={closeModal}
-							className="cursor-pointer"
-						/>
+						{closeIcon}
 					</AlertDialogTitle>
 					<AlertDialogDescription>
 						Please enter the one-time password sent to your phone.

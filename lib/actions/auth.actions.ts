@@ -2,9 +2,9 @@
 
 import { signIn, signOut } from "@/auth";
 import { Patient } from "@/types/appwrite.type";
-import { AuthError } from "next-auth";
+import { AuthError, User } from "next-auth";
 
-export async function handleCredentialsSignIn(userData: Patient) {
+export async function handleCredentialsSignIn(userData: Patient | User) {
 	try {
 		await signIn("credentials", { ...userData, redirect: false });
 	} catch (error) {

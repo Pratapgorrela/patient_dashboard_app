@@ -37,13 +37,14 @@ interface CustomProps {
 	required?: boolean;
 	optionLabel?: string;
 	placeholder?: string;
+	icon?: ReactNode;
 	iconSrc?: string;
 	iconAlt?: string;
 	disabled?: boolean;
 	dateFormat?: string;
 	showTimeSelect?: boolean;
-	childern?: React.ReactNode;
-	renderSkeleton?: (field: any) => React.ReactNode;
+	childern?: ReactNode;
+	renderSkeleton?: (field: any) => ReactNode;
 	options?: any[];
 	selectKey?: string;
 	minDate?: Date;
@@ -58,6 +59,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		label = "",
 		optionLabel = "label",
 		placeholder = "",
+		icon = null,
 		iconSrc = "",
 		iconAlt = "",
 		selectKey = "name",
@@ -76,7 +78,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		case FormFieldType.INPUT:
 			return (
 				<div className="flex rounded-md border border-dark-500 bg-dark-400">
-					{iconSrc && (
+					{iconSrc ? (
 						<Image
 							src={iconSrc}
 							height={24}
@@ -84,6 +86,8 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 							alt={iconAlt || "input-icon"}
 							className="ml-2"
 						/>
+					) : (
+						icon
 					)}
 					<FormControl>
 						<Input

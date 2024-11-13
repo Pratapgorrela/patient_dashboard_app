@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { UserSignupFormValidation } from "./features/userapp/types/validation";
+import { app_constants } from "./constants/config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: [
@@ -16,7 +17,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		async authorized({ request: { nextUrl }, auth }) {
 			const isLoggedIn = !!auth?.user;
 			const { pathname } = nextUrl;
-			if (pathname.endsWith("/login") && isLoggedIn) {
+			if (
+				app_constants.PROTECTED_ROUTES.filter((path) => pathname.includes(path))
+					?.length &&
+				!isLoggedIn
+			) {
+				return Response.redirect(new URL("/fortis/patient/login", nextUrl));
+			} else if (pathname.endsWith("/login") && isLoggedIn) {
 				return Response.redirect(new URL("/fortis/patient/dashboard", nextUrl));
 			}
 			return true;
