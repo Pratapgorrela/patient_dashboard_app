@@ -76,3 +76,9 @@ export function encryptKey(passkey: string) {
 export function decryptKey(passkey: string) {
 	return atob(passkey);
 }
+
+export function generateRandomSixDigitNumber(): string {
+	const randomNum = Math.floor(Math.random() * 1000000);
+	const randomSixDigStr = randomNum.toString().padStart(6, "0");
+	return randomSixDigStr;
+}

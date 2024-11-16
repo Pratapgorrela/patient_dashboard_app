@@ -6,7 +6,7 @@ export const enum ICON_NAMES {
 	close = "CLOSE",
 }
 
-export const getIcon = (name: string, rest?: any) => {
+export const getIcon = (name: string, rest?: unknown) => {
 	switch (name) {
 		case ICON_NAMES.user:
 			return (
@@ -14,7 +14,7 @@ export const getIcon = (name: string, rest?: any) => {
 					stroke="#CDE9DF"
 					strokeWidth="1.5"
 					className="self-center ml-2"
-					{...rest}
+					{...(rest || {})}
 				/>
 			);
 		case ICON_NAMES.email:
@@ -23,17 +23,17 @@ export const getIcon = (name: string, rest?: any) => {
 					stroke="#CDE9DF"
 					strokeWidth="1.5"
 					className="self-center ml-2"
-					{...rest}
+					{...(rest || {})}
 				/>
 			);
 		case ICON_NAMES.close:
-			return <X {...rest} />;
+			return <X {...(rest || {})} />;
 		default:
 			return <></>;
 	}
 };
 
-export const getIcons = (icons: ICON_NAMES[], rest?: any) => {
+export const getIcons = (icons: ICON_NAMES[], rest?: unknown) => {
 	return icons?.reduce((acc, icon) => {
 		acc[icon] = getIcon(icon, rest);
 		return acc;

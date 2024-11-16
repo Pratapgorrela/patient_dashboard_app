@@ -20,12 +20,12 @@ export const getAppointment = async (appointmentId: string) => {
 	}
 };
 
-export const getRecentAppointmentList = async () => {
+export const getRecentAppointmentList = async (phone: string) => {
 	try {
 		const appointments = await databases.listDocuments(
 			dbConfig.DATABASE_ID!,
 			dbConfig.APPOINTMENT_COLLECTION_ID!,
-			[Query.orderDesc("$createdAt")]
+			[Query.equal("phone", phone), Query.orderDesc("$createdAt")]
 		);
 
 		const initialCounts = {
@@ -91,18 +91,20 @@ export const createAppointment = async (
 		// }`}  `;
 
 		// await sendSMSNotification(userId, smsMessage);
+		revalidatePath(`/fortis/patient/appointment/success`);
 		return parseStringify(newAppointment);
 	} catch (error: unknown) {
 		console.log(error);
+		return null;
 	}
 };
 
 export const updateAppointment = async ({
-	userId,
+	// userId,
 	appointmentId,
 	appointment,
-	type,
-}: UpdateAppointmentParams) => {
+}: // type,
+UpdateAppointmentParams) => {
 	try {
 		const updateAppointment = await databases.updateDocument(
 			dbConfig.DATABASE_ID!,
@@ -131,5 +133,6 @@ export const updateAppointment = async ({
 		return parseStringify(updateAppointment);
 	} catch (error: unknown) {
 		console.log("error", error);
+		return null;
 	}
 };

@@ -23,12 +23,14 @@ interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
 	isLoading?: boolean;
+	noRecordsMessage?: string;
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
 	isLoading = false,
+	noRecordsMessage = "",
 }: DataTableProps<TData, TValue>) {
 	const table = useReactTable({
 		data,
@@ -38,10 +40,10 @@ export function DataTable<TData, TValue>({
 	});
 
 	const renderSkeleton = () =>
-		[1, 2, 3].map(() => (
-			<TableRow>
-				{columns.map(() => (
-					<TableCell key={1}>
+		[1, 2, 3].map((index: number) => (
+			<TableRow key={index}>
+				{columns.map((col) => (
+					<TableCell key={col.id}>
 						<Skeleton className="h-[125px]" />
 					</TableCell>
 				))}
@@ -88,7 +90,7 @@ export function DataTable<TData, TValue>({
 					) : (
 						<TableRow>
 							<TableCell colSpan={columns.length} className="h-24 text-center">
-								No results.
+								{noRecordsMessage || "No records."}
 							</TableCell>
 						</TableRow>
 					)}
