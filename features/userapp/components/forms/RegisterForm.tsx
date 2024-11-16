@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -51,7 +52,7 @@ const RegisterForm = ({ user }: { user?: User }) => {
 	useEffect(() => {
 		try {
 			const fetchPatientData = async () => {
-				firstRender.current = true;
+				firstRender.current = false;
 				const data: Patient | undefined | null = await getPatient(
 					user?.userId || ""
 				);
@@ -81,12 +82,12 @@ const RegisterForm = ({ user }: { user?: User }) => {
 				formData.append("blobFile", blobFile);
 				formData.append("fileName", values.identificationDocument[0].name);
 			}
-			if (!patient) {
+			if (user && !patient) {
 				// CREATE PATIENT
 				const patientData = {
 					...values,
-					userId: user?.$id!,
-					clientId: user?.clientId!,
+					userId: user.$id!,
+					clientId: user.clientId!,
 					identificationDocument: formData,
 				};
 				const newPatient = await registerPatient(patientData);
@@ -94,6 +95,7 @@ const RegisterForm = ({ user }: { user?: User }) => {
 			} else if (patient?.$id) {
 				//UPDATE PATIENT
 				const { identificationDocument, ...rest } = values;
+				console.log(identificationDocument);
 				const patientData = {
 					patient: rest,
 					patientId: patient.$id,

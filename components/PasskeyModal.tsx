@@ -27,24 +27,29 @@ import {
 } from "@/components/ui/form";
 import { UserOtpValidation } from "./validations";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
 import { getIcon, ICON_NAMES } from "@/lib/service";
 
 const PasskeyModal = ({
 	validatePasskey,
 	redirectUrl,
+	title = "",
+	onSuccess,
+	onClose,
 }: {
 	validatePasskey: (passkey: string) => Promise<string>;
-	redirectUrl: string;
+	redirectUrl?: string;
+	title?: string;
+	onSuccess?: () => void;
+	onClose?: () => void;
 }) => {
 	const router = useRouter();
-	const { toast } = useToast();
 
 	const [open, setOpen] = useState(true);
 	const [error, setError] = useState("");
 
 	const closeModal = () => {
 		setOpen(false);
+		onClose && onClose();
 	};
 
 	const closeIcon = getIcon(ICON_NAMES.close, {
@@ -63,12 +68,12 @@ const PasskeyModal = ({
 		setError("");
 		const response = await validatePasskey(data.passkey);
 		if (response === "Success") {
-			toast({
-				description: "Login Successfull!",
-			});
 			setOpen(false);
-			router.push(redirectUrl);
-		} else setError(response);
+			onSuccess && onSuccess();
+			redirectUrl && router.push(redirectUrl);
+		} else {
+			setError(response);
+		}
 	}
 
 	return (
@@ -76,7 +81,7 @@ const PasskeyModal = ({
 			<AlertDialogContent className="shad-alert-dialog">
 				<AlertDialogHeader>
 					<AlertDialogTitle className="flex items-start justify-between">
-						Login Access Verification
+						{title || "Login Access Verification"}
 						{closeIcon}
 					</AlertDialogTitle>
 					<AlertDialogDescription>

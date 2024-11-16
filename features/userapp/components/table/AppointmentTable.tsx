@@ -11,8 +11,12 @@ import {
 	TriangleAlert,
 	Hourglass,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const AppointmentTable = () => {
+	const { data: sessionData } = useSession();
+	console.log("sessionData=>>", sessionData);
+
 	const [appointments, setAppointments] = useState<
 		| {
 				documents: Models.Document[];
@@ -34,11 +38,14 @@ const AppointmentTable = () => {
 	useEffect(() => {
 		try {
 			const getAppointments = async () => {
-				const appointmentsData = await getRecentAppointmentList();
+				const appointmentsData = await getRecentAppointmentList(
+					sessionData?.user?.phone || ""
+				);
 				setIsLoading(false);
 				setAppointments(appointmentsData);
 			};
-			getAppointments();
+			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+			!initialRenderComplete && sessionData?.user?.phone && getAppointments();
 		} catch (error) {
 			console.log(error);
 			setIsLoading(false);
@@ -118,6 +125,7 @@ const AppointmentTable = () => {
 						columns={columns}
 						data={(appointments?.documents as Appointment[]) || []}
 						isLoading={isLoading}
+						noRecordsMessage={"No Appointments."}
 					/>
 				)}
 			</main>

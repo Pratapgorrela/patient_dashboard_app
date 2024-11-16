@@ -3,13 +3,17 @@ import { z } from "zod";
 
 export const UserSignupFormValidation = z.object({
 	name: z
-		.string()
+		.string({
+			required_error: "Name is required",
+		})
 		.min(2, "Name must be at least 2 characters")
 		.max(50, "Name must be at most 50 characters"),
-	email: z.string().email("Invalid email address").optional(),
 	phone: z
-		.string()
+		.string({
+			required_error: "Phone number is required",
+		})
 		.refine((phone) => /^\+\d{12}$/.test(phone), "Invalid phone number"),
+	email: z.string().email("Invalid email address").or(z.literal("")),
 });
 
 export const UserLoginFormValidation = z.object({

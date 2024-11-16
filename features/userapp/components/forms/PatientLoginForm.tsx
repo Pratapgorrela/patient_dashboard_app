@@ -10,17 +10,17 @@ import CustomFormField from "../../../../components/CustomFormField";
 import Button from "../../../../components/ButtonAtom";
 import { UserLoginFormValidation } from "@/features/userapp/types/validation";
 // import {
-// generatePhoneToken,
 // getUserByPhone,
 // validateUserLogin,
 // } from "../../db/actions/patient.actions";
-import { FormFieldType } from "@/constants";
+import { ERRORS, FormFieldType } from "@/constants";
 import { Models } from "node-appwrite";
 import PasskeyModal from "@/components/PasskeyModal";
 import { handleCredentialsSignIn } from "@/lib/actions/auth.actions";
 import { useRouter } from "next/navigation";
 import { PatientData, SessionData, TokenData } from "@/data/data";
 import { Patient } from "@/types/appwrite.type";
+// import { generatePhoneToken } from "@/lib/actions/common.actions";
 
 const PatientLoginForm = () => {
 	const router = useRouter();
@@ -28,6 +28,8 @@ const PatientLoginForm = () => {
 	const [token, setToken] = useState<Models.Token | null>(null);
 	const [patient, setPatient] = useState<Patient | null | undefined>();
 	const [error, setError] = useState("");
+
+	const LOGIN_ERRORS = { ...ERRORS.GLOBAL, ...ERRORS.LOGIN };
 
 	const form = useForm<z.infer<typeof UserLoginFormValidation>>({
 		resolver: zodResolver(UserLoginFormValidation),
@@ -40,16 +42,17 @@ const PatientLoginForm = () => {
 		setError("");
 		setPatient(null);
 		setIsLoading(true);
+		setToken(null);
 		try {
 			// const patient = await getUserByPhone(values.phone);
 			const patient = PatientData;
 			setPatient(patient);
-			if (values.phone === patient.phone && patient?.$id) {
+			if (values.phone && patient?.$id) {
 				// const tokenData = await generatePhoneToken(values.phone);
 				const tokenData = TokenData;
 				setToken(tokenData as Models.Token);
 			} else {
-				setError("User does not exist! Please signup to create appointment.");
+				setError(LOGIN_ERRORS.USER_NOT_EXIST);
 				setToken(null);
 			}
 		} catch (error) {
@@ -69,7 +72,7 @@ const PatientLoginForm = () => {
 			await handleCredentialsSignIn(patient);
 			return "Success";
 		}
-		return "Invalid OTP. Please try again!";
+		return LOGIN_ERRORS.INVALID_OTP;
 	};
 
 	const handleSignup = () => {
@@ -100,6 +103,7 @@ const PatientLoginForm = () => {
 						label="Phone number"
 						placeholder="123 456 7890"
 						onChange={() => setError("")}
+						required
 					/>
 					<div className="text-red-500">{error}</div>
 					<Button isLoading={isLoading}>Login</Button>
@@ -110,6 +114,13 @@ const PatientLoginForm = () => {
 						onClick={handleSignup}>
 						{`Don't have a account? `}
 						<b>Sign Up</b>
+					</Button>
+					<Button
+						onClick={() => router.push(`/fortis/patient/appointment`)}
+						variant={"default"}
+						type="button"
+						className="!bg-blue-500">
+						Book a New Appointment
 					</Button>
 				</form>
 			</Form>

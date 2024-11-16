@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +12,7 @@ import { getAppointmentSchema } from "@/features/userapp/types/validation";
 import { useRouter } from "next/navigation";
 import {
 	AppointmentActionsType,
+	ERRORS,
 	FormFieldType,
 	GenderOptions,
 	GUEST_USER_ID,
@@ -25,9 +27,10 @@ import { addDays } from "date-fns";
 import { User } from "next-auth";
 import { getDoctorsList } from "@/features/docapp/db/doctor.actions";
 import { getIcons, ICON_NAMES } from "@/lib/service";
+import PasskeyModal from "@/components/PasskeyModal";
 
 const AppointmentForm = ({
-	type,
+	type = "create",
 	user,
 	appointment,
 	setOpen,
@@ -42,13 +45,18 @@ const AppointmentForm = ({
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [doctors, setDoctors] = useState<CreateDoctorParams[] | []>([]);
+	const [token, setToken] = useState<string | null>(null);
 	const firstRender = useRef(true);
 	const icons = getIcons([ICON_NAMES.user, ICON_NAMES.email]);
 
+	const status = StatusMapper?.[type];
+	const userId = user?.userId || GUEST_USER_ID;
 	const createAction = AppointmentActionsType.CREATE.key;
 	const updateAction = AppointmentActionsType.UPDATE.key;
 	const cancelAction = AppointmentActionsType.CANCEL.key;
-	const scheduleAction = AppointmentActionsType.SCHEDULE.key;
+	// const scheduleAction = AppointmentActionsType.SCHEDULE.key;
+
+	const APPOINTMENT_ERRORS = { ...ERRORS.GLOBAL, ...ERRORS.APPOINTMENT };
 
 	const AppointmentFormValidation = getAppointmentSchema(type);
 
@@ -93,63 +101,101 @@ const AppointmentForm = ({
 		}
 	}, []);
 
-	async function onSubmit(values: z.infer<typeof AppointmentFormValidation>) {
-		setIsLoading(true);
+	const handleCreateAppointment = async (
+		values: z.infer<typeof AppointmentFormValidation>
+	) => {
 		try {
-			const userId = user?.userId || GUEST_USER_ID;
-			const status = StatusMapper?.[type];
-			if (type === createAction) {
-				const appointmentData = {
-					clientId: user?.clientId || "",
-					userId,
-					patient: user?.$id || "",
-					name: values.name,
-					phone: values.phone,
-					email: values?.email,
-					gender: values.gender,
+			const appointmentData = {
+				clientId: user?.clientId || "",
+				userId,
+				patient: user?.$id || "",
+				name: values.name,
+				phone: values.phone,
+				email: values?.email,
+				gender: values.gender,
+				primaryPhysician: values?.primaryPhysicianId || "",
+				schedule: new Date(values.schedule),
+				reason: values.reason,
+				note: values?.note || "",
+				status: status as Status,
+				createdBy: userId,
+			};
+			const appointment = await createAppointment(userId, appointmentData);
+			if (appointment) {
+				form.reset();
+				router.push(
+					`/fortis/patient/appointment/success?appointmentId=${appointment?.$id}`
+				);
+				return true;
+			}
+			return null;
+		} catch (err: unknown) {
+			console.log(err);
+			setIsLoading(false);
+			return null;
+		}
+	};
+
+	const handleUpdateAppointment = async (
+		values: z.infer<typeof AppointmentFormValidation>
+	) => {
+		try {
+			const appointmentToUpdate = {
+				userId,
+				appointmentId: appointment?.$id as string,
+				appointment: {
 					primaryPhysician: values?.primaryPhysicianId || "",
 					schedule: new Date(values.schedule),
+					cancellationReason: values?.cancellationReason || "",
 					reason: values.reason,
-					note: values?.note || "",
 					status: status as Status,
-					createdBy: userId,
-				};
-				const appointment = await createAppointment(userId, appointmentData);
-				if (appointment) {
-					form.reset();
+					patient: user?.$id || "",
+					updatedBy: userId,
+				},
+				type: type === updateAction ? createAction : type,
+			};
+			const updatedAppointmentData = await updateAppointment(
+				appointmentToUpdate
+			);
+			if (updatedAppointmentData) {
+				setOpen && setOpen(false);
+				form.reset();
+				if (type === updateAction) {
 					router.push(
-						`/fortis/patient/appointment/success?appointmentId=${appointment?.$id}`
+						`/fortis/patient/appointment/success?appointmentId=${appointment?.$id}&isUpdated=true`
 					);
 				}
-			} else {
-				const appointmentToUpdate = {
-					userId,
-					appointmentId: appointment?.$id as string,
-					appointment: {
-						primaryPhysician: values?.primaryPhysicianId || "",
-						schedule: new Date(values.schedule),
-						cancellationReason: values?.cancellationReason || "",
-						reason: values.reason,
-						status: status as Status,
-						updatedBy: userId,
-					},
-					type: type === updateAction ? createAction : type,
-				};
-				const updatedAppointmentData = await updateAppointment(
-					appointmentToUpdate
-				);
-				if (updatedAppointmentData) {
-					setOpen && setOpen(false);
-					form.reset();
-					if (type === updateAction) {
-						router.push(
-							`/fortis/patient/appointment/success?appointmentId=${appointment?.$id}&isUpdated=true`
-						);
-					}
-				}
+				return true;
+			}
+			return null;
+		} catch (err: unknown) {
+			console.log(err);
+			setIsLoading(false);
+			return null;
+		}
+	};
+
+	const handleGuestAppointmentChanges = () => {
+		// TODO: API integration to send OTP.
+		setToken("123321");
+		return;
+	};
+
+	async function onSubmit(values: z.infer<typeof AppointmentFormValidation>) {
+		setIsLoading(true);
+		setToken(null);
+		try {
+			if (!user?.userId) {
+				return handleGuestAppointmentChanges();
+			} else if (type === createAction) {
+				await handleCreateAppointment(values);
+			} else if (appointment?.$id) {
+				await handleUpdateAppointment(values);
 			}
 		} catch (error) {
 			console.log(error);
+			setIsLoading(false);
+			setToken(null);
 		}
 	}
 
@@ -176,140 +222,166 @@ const AppointmentForm = ({
 			setOpen(false);
 			return;
 		}
-		user?.$id
-			? router.push(`/fortis/patient/dashboard`)
-			: router.push(`/fortis`);
+		router.push(`/fortis/patient/dashboard`);
+	};
+
+	const validatePasskey = async (passkey: string) => {
+		return token && passkey === token
+			? "Success"
+			: APPOINTMENT_ERRORS.INVALID_OTP;
+	};
+
+	const handleOtpValidateSuccess = async () => {
+		const result: boolean | null = appointment?.$id
+			? await handleUpdateAppointment(form.getValues())
+			: await handleCreateAppointment(form.getValues());
+		// TODO: Result Filure Alert.
+		return result;
 	};
 
 	return (
-		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit)}
-				className="space-y-6 flex-1 h-80 overflow-scroll md:h-full md:overflow-auto">
-				{type === createAction && HeaderContent}
-				{type === updateAction && !isReadonly && UpdateHeaderContent}
-				{type !== cancelAction && (
-					<div className="flex gap-8 flex-col">
-						<div className="flex flex-col gap-6 xl:flex-row">
-							<CustomFormField
-								control={form.control}
-								fieldType={FormFieldType.INPUT}
-								required
-								name="name"
-								label="Full name"
-								placeholder="Full name"
-								icon={icons?.[ICON_NAMES.user]}
-								disabled={isReadonly || type === updateAction}
-							/>
-							<CustomFormField
-								control={form.control}
-								fieldType={FormFieldType.PHONE_INPUT}
-								required
-								name="phone"
-								label="Phone"
-								placeholder="123 456 7890"
-								disabled={isReadonly || type === updateAction}
-							/>
+		<>
+			{token && (
+				<PasskeyModal
+					validatePasskey={validatePasskey}
+					title={
+						appointment?.$id
+							? "Appointment Update Verification"
+							: "Appointment Create Verification"
+					}
+					onSuccess={handleOtpValidateSuccess}
+					onClose={() => setIsLoading(false)}
+				/>
+			)}
+			<Form {...form}>
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="space-y-6 flex-1 h-80 overflow-scroll md:h-full md:overflow-auto">
+					{type === createAction && HeaderContent}
+					{type === updateAction && !isReadonly && UpdateHeaderContent}
+					{type !== cancelAction && (
+						<div className="flex gap-8 flex-col">
+							<div className="flex flex-col gap-6 xl:flex-row">
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.INPUT}
+									required
+									name="name"
+									label="Full name"
+									placeholder="Full name"
+									icon={icons?.[ICON_NAMES.user]}
+									disabled={isReadonly || type === updateAction}
+								/>
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.PHONE_INPUT}
+									required
+									name="phone"
+									label="Phone"
+									placeholder="123 456 7890"
+									disabled={isReadonly || type === updateAction}
+								/>
+							</div>
+							<div className="flex flex-col gap-6 xl:flex-row">
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.INPUT}
+									name="email"
+									label="Email"
+									placeholder="email@gmail.com"
+									icon={icons?.[ICON_NAMES.email]}
+									disabled={isReadonly || type === updateAction}
+								/>
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.RADIO_GROUP}
+									required
+									name="gender"
+									label="Gender"
+									options={GenderOptions}
+									disabled={isReadonly || type === updateAction}
+								/>
+							</div>
+							<div className="flex flex-col gap-6 xl:flex-row">
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.SELECT}
+									name="primaryPhysicianId"
+									selectKey="$id"
+									optionLabel="name"
+									label="Doctor"
+									placeholder="Select a Doctor"
+									options={doctors}
+									disabled={isReadonly}
+								/>
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.DATE_PICKER}
+									required
+									name="schedule"
+									label="Expected appointment date"
+									showTimeSelect
+									dateFormat="MM/dd/yyyy - h:mm aa"
+									minDate={new Date()}
+									maxDate={addDays(new Date(), 15)}
+									disabled={isReadonly}
+								/>
+							</div>
+							<div className="flex flex-col gap-6 xl:flex-row">
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.TEXTAREA}
+									required
+									name="reason"
+									label="Reason for appointment"
+									placeholder="Enter reason for appointment"
+									disabled={isReadonly}
+								/>
+								<CustomFormField
+									control={form.control}
+									fieldType={FormFieldType.TEXTAREA}
+									name="note"
+									label="Notes"
+									placeholder="Enter notes"
+									disabled={isReadonly}
+								/>
+							</div>
 						</div>
-						<div className="flex flex-col gap-6 xl:flex-row">
-							<CustomFormField
-								control={form.control}
-								fieldType={FormFieldType.INPUT}
-								name="email"
-								label="Email"
-								placeholder="email@gmail.com"
-								icon={icons?.[ICON_NAMES.email]}
-								disabled={isReadonly || type === updateAction}
-							/>
-							<CustomFormField
-								control={form.control}
-								fieldType={FormFieldType.RADIO_GROUP}
-								required
-								name="gender"
-								label="Gender"
-								options={GenderOptions}
-								disabled={isReadonly || type === updateAction}
-							/>
-						</div>
-						<div className="flex flex-col gap-6 xl:flex-row">
-							<CustomFormField
-								control={form.control}
-								fieldType={FormFieldType.SELECT}
-								name="primaryPhysicianId"
-								selectKey="$id"
-								optionLabel="name"
-								label="Doctor"
-								placeholder="Select a Doctor"
-								options={doctors}
-								disabled={isReadonly}
-							/>
-							<CustomFormField
-								control={form.control}
-								fieldType={FormFieldType.DATE_PICKER}
-								required
-								name="schedule"
-								label="Expected appointment date"
-								showTimeSelect
-								dateFormat="MM/dd/yyyy - h:mm aa"
-								minDate={new Date()}
-								maxDate={addDays(new Date(), 15)}
-								disabled={isReadonly}
-							/>
-						</div>
-						<div className="flex flex-col gap-6 xl:flex-row">
-							<CustomFormField
-								control={form.control}
-								fieldType={FormFieldType.TEXTAREA}
-								required
-								name="reason"
-								label="Reason for appointment"
-								placeholder="Enter reason for appointment"
-								disabled={isReadonly}
-							/>
-							<CustomFormField
-								control={form.control}
-								fieldType={FormFieldType.TEXTAREA}
-								name="note"
-								label="Notes"
-								placeholder="Enter notes"
-								disabled={isReadonly}
-							/>
-						</div>
-					</div>
-				)}
-				{(type === cancelAction || isReadonly) && (
-					<CustomFormField
-						control={form.control}
-						fieldType={FormFieldType.TEXTAREA}
-						required
-						name="cancellationReason"
-						label="Reason for cancellation"
-						placeholder="Enter reason for cancellation"
-						disabled={isReadonly}
-					/>
-				)}
-				{!isReadonly && (
-					<div className="flex flex-col gap-6 xl:flex-row md:mt-20px ">
-						{type !== cancelAction && (
+					)}
+					{(type === cancelAction || isReadonly) && (
+						<CustomFormField
+							control={form.control}
+							fieldType={FormFieldType.TEXTAREA}
+							required
+							name="cancellationReason"
+							label="Reason for cancellation"
+							placeholder="Enter reason for cancellation"
+							disabled={isReadonly}
+						/>
+					)}
+					{!isReadonly && (
+						<div className="flex flex-col gap-6 xl:flex-row md:mt-20px ">
+							{type !== cancelAction && (
+								<Button
+									variant="ghost"
+									className="shad-gray-btn w-full md:p-6"
+									onClick={handleCancel}
+									type="button">
+									Cancel
+								</Button>
+							)}
 							<Button
-								variant="ghost"
-								className="shad-gray-btn w-full md:p-6"
-								onClick={handleCancel}
-								type="button">
-								Cancel
+								isLoading={isLoading}
+								className={`${
+									type === cancelAction ? "shad-danger-btn" : "shad-primary-btn"
+								} w-full md:p-6`}>
+								{getSubmitBtnLabel()}
 							</Button>
-						)}
-						<Button
-							isLoading={isLoading}
-							className={`${
-								type === cancelAction ? "shad-danger-btn" : "shad-primary-btn"
-							} w-full md:p-6`}>
-							{getSubmitBtnLabel()}
-						</Button>
-					</div>
-				)}
-			</form>
-		</Form>
+						</div>
+					)}
+				</form>
+			</Form>
+		</>
 	);
 };
 

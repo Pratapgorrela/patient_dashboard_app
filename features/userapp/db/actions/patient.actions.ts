@@ -14,19 +14,21 @@ export const createUser = async (user: CreateUserParams) => {
 	try {
 		const newUser = await users.create(
 			ID.unique(),
-			user.email,
+			user?.email,
 			user.phone,
 			undefined,
 			user.name
 		);
 		return parseStringify(newUser);
 	} catch (error: unknown) {
-		if (error && error?.["code"] === 409) {
-			const documents = await users.list([
-				Query.equal("email", [user?.email || ""]),
-			]);
-			return documents?.users?.[0];
-		}
+		console.log(error);
+		return null;
+		// if (error && error?.["code"] === 409) {
+		// 	const documents = await users.list([
+		// 		Query.equal("email", [user?.email || ""]),
+		// 	]);
+		// 	return documents?.users?.[0];
+		// }
 	}
 };
 
@@ -39,17 +41,23 @@ export const getUser = async (userId: string) => {
 	}
 };
 
-export const getUserByPhone = async (phone: string) => {
+export const getUsers = async () => {
 	try {
-		const user = await databases.listDocuments(
-			dbConfig.DATABASE_ID!,
-			dbConfig.PATIENT_COLLETION_ID!,
-			[Query.equal("phone", phone)]
-		);
-		return parseStringify(user.documents[0]);
-	} catch (error: any) {
+		const result = await users.list();
+		return parseStringify(result);
+	} catch (error: unknown) {
 		console.log(error);
 		return [];
+	}
+};
+
+export const getUserByPhone = async (phone: string) => {
+	try {
+		const data = await users.list([Query.equal("phone", phone)]);
+		return data.users.length ? parseStringify(data.users[0]) : null;
+	} catch (error: any) {
+		console.log(error);
+		return null;
 	}
 };
 
@@ -134,9 +142,12 @@ export const getPatient = async (userId: string) => {
 			dbConfig.PATIENT_COLLETION_ID!,
 			[Query.equal("userId", userId)]
 		);
-		return parseStringify(patient?.documents?.[0]);
+		return patient?.documents?.length
+			? parseStringify(patient.documents[0])
+			: null;
 	} catch (error: unknown) {
 		console.log(error);
+		return null;
 	}
 };
 
@@ -166,16 +177,6 @@ export const getPatient = async (userId: string) => {
 // 		console.log(error);
 // 	}
 // };
-
-export const generatePhoneToken = async (phone: string) => {
-	try {
-		const token = await account.createPhoneToken(ID.unique(), phone);
-		return token;
-	} catch (error: unknown) {
-		console.log(error);
-		return error;
-	}
-};
 
 export const validateUserLogin = async (userId: string, passKey: string) => {
 	try {

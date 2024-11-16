@@ -49,6 +49,7 @@ interface CustomProps {
 	selectKey?: string;
 	minDate?: Date;
 	maxDate?: Date;
+	ref?: any;
 	onChange?: (value: any) => void;
 }
 
@@ -71,6 +72,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		disabled = false,
 		minDate = undefined,
 		maxDate = undefined,
+		ref,
 		onChange,
 	} = props;
 
@@ -116,7 +118,6 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 			return (
 				<FormControl>
 					<PhoneInput
-						placeholder={placeholder || "Enter phone number"}
 						value={field.value as string | undefined}
 						onChange={(value) => {
 							// eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -129,6 +130,8 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 						className="input-phone"
 						countryCallingCodeEditable={false}
 						disabled={disabled}
+						placeholder={placeholder || "Enter phone number"}
+						ref={ref}
 					/>
 				</FormControl>
 			);

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { app_constants } from "@/constants/config";
 
-const SuccessAlert = ({
+const AlertNote = ({
 	open,
 	setIsopen,
 	headerLabel = "",
@@ -60,4 +60,4 @@ const SuccessAlert = ({
 		</AlertDialog>
 	) : null;
 };
-export default SuccessAlert;
+export default AlertNote;
