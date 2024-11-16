@@ -74,6 +74,11 @@ export const columns: ColumnDef<Appointment>[] = [
 						isReadonly={true}
 					/>
 					<AppointmentModal
+						type="update"
+						isDisabled={data?.status !== "pending"}
+						appointment={data}
+					/>
+					<AppointmentModal
 						type="cancel"
 						appointment={data}
 						isDisabled={data?.status === "completed"}

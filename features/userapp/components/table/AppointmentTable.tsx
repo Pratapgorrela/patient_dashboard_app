@@ -15,7 +15,6 @@ import { useSession } from "next-auth/react";
 
 const AppointmentTable = () => {
 	const { data: sessionData } = useSession();
-	console.log("sessionData=>>", sessionData);
 
 	const [appointments, setAppointments] = useState<
 		| {
