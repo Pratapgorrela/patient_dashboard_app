@@ -348,7 +348,8 @@ const AppointmentForm = ({
 							</div>
 						</div>
 					)}
-					{(type === cancelAction || isReadonly) && (
+					{(type === cancelAction ||
+						(isReadonly && appointment?.status === "cancelled")) && (
 						<CustomFormField
 							control={form.control}
 							fieldType={FormFieldType.TEXTAREA}
