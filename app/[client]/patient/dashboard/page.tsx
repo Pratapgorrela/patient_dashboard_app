@@ -23,7 +23,6 @@ import RegistrationSkeleton from "@/components/skeleton/registrationSkeleton";
 export default function PatientDashboard() {
 	const { data: sessionData } = useSession();
 	const user = sessionData?.user;
-	console.log("sessionData=>>", sessionData);
 
 	// Menu items.
 	const items = [

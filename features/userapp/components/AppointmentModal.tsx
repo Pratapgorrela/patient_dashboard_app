@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Appointment } from "@/types/appwrite.type";
 import AppointmentForm from "./forms/AppointmentForm";
+import { useSession } from "next-auth/react";
 
 const AppointmentModal = ({
 	type,
@@ -20,12 +21,12 @@ const AppointmentModal = ({
 	isReadonly = false,
 }: {
 	type: "schedule" | "cancel" | "update";
-	patientId: string;
-	userId: string;
 	appointment: Appointment;
 	isDisabled?: boolean;
 	isReadonly?: boolean;
 }) => {
+	const { data: sessionData } = useSession();
+	const user = sessionData?.user;
 	const statusMapper = { schedule: "scheduled", cancel: "cancelled" };
 	const isActionDisabled =
 		isDisabled || statusMapper?.[type] === appointment?.status;
@@ -62,7 +63,8 @@ const AppointmentModal = ({
 				}`}>
 				<DialogHeader className="mb-4 space-y-3">
 					<DialogTitle className="capitalize md:text-2xl">
-						{!isReadonly ? type : ""} Appointment {!isReadonly ? "" : " Details"}
+						{!isReadonly ? type : ""} Appointment{" "}
+						{!isReadonly ? "" : " Details"}
 					</DialogTitle>
 					{!isReadonly && (
 						<DialogDescription className="md:text-lg">
@@ -72,6 +74,7 @@ const AppointmentModal = ({
 				</DialogHeader>
 				<AppointmentForm
 					type={type}
+					user={user}
 					appointment={appointment}
 					setOpen={setIsopen}
 					isReadonly={isReadonly}
