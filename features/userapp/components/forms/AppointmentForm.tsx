@@ -28,6 +28,8 @@ import { User } from "next-auth";
 import { getDoctorsList } from "@/features/docapp/db/doctor.actions";
 import { getIcons, ICON_NAMES } from "@/lib/service";
 import PasskeyModal from "@/components/PasskeyModal";
+import AlertNote from "@/components/AlertNote";
+import { app_constants } from "@/constants/config";
 
 const AppointmentForm = ({
 	type = "create",
@@ -49,12 +51,17 @@ const AppointmentForm = ({
 	const firstRender = useRef(true);
 	const icons = getIcons([ICON_NAMES.user, ICON_NAMES.email]);
 
+	const { ERROR_ALERT_CONFIG } = app_constants;
+
 	const status = StatusMapper?.[type];
 	const userId = user?.userId || GUEST_USER_ID;
 	const createAction = AppointmentActionsType.CREATE.key;
 	const updateAction = AppointmentActionsType.UPDATE.key;
 	const cancelAction = AppointmentActionsType.CANCEL.key;
 	// const scheduleAction = AppointmentActionsType.SCHEDULE.key;
+	const isCancelled =
+		appointment?.status === AppointmentActionsType.CANCEL.value;
+	const [isAlertOpen, setIsAlertOpen] = useState(isCancelled && !isReadonly);
 
 	const APPOINTMENT_ERRORS = { ...ERRORS.GLOBAL, ...ERRORS.APPOINTMENT };
 
@@ -150,6 +157,7 @@ const AppointmentForm = ({
 					reason: values.reason,
 					status: status as Status,
 					patient: user?.$id || "",
+					note: values?.note || "",
 					updatedBy: userId,
 				},
 				type: type === updateAction ? createAction : type,
@@ -160,7 +168,7 @@ const AppointmentForm = ({
 			if (updatedAppointmentData) {
 				setOpen && setOpen(false);
 				form.reset();
-				if (type === updateAction) {
+				if (!setOpen && type === updateAction) {
 					router.push(
 						`/fortis/patient/appointment/success?appointmentId=${appointment?.$id}&isUpdated=true`
 					);
@@ -253,12 +261,24 @@ const AppointmentForm = ({
 					onClose={() => setIsLoading(false)}
 				/>
 			)}
+			<AlertNote
+				open={isAlertOpen}
+				setIsopen={setIsAlertOpen}
+				{...{
+					...ERROR_ALERT_CONFIG,
+					description:
+						"Selected Appointment is Cancelled, Please create a new one.",
+				}}
+			/>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
 					className="space-y-6 flex-1 h-80 overflow-scroll md:h-full md:overflow-auto">
 					{type === createAction && HeaderContent}
-					{type === updateAction && !isReadonly && UpdateHeaderContent}
+					{type === updateAction &&
+						!isReadonly &&
+						!setOpen &&
+						UpdateHeaderContent}
 					{type !== cancelAction && (
 						<div className="flex gap-8 flex-col">
 							<div className="flex flex-col gap-6 xl:flex-row">
@@ -349,7 +369,8 @@ const AppointmentForm = ({
 						</div>
 					)}
 					{(type === cancelAction ||
-						(isReadonly && appointment?.status === "cancelled")) && (
+						(isReadonly &&
+							appointment?.status === AppointmentActionsType.CANCEL.value)) && (
 						<CustomFormField
 							control={form.control}
 							fieldType={FormFieldType.TEXTAREA}
@@ -375,7 +396,8 @@ const AppointmentForm = ({
 								isLoading={isLoading}
 								className={`${
 									type === cancelAction ? "shad-danger-btn" : "shad-primary-btn"
-								} w-full md:p-6`}>
+								} w-full md:p-6`}
+								disabeld={isCancelled}>
 								{getSubmitBtnLabel()}
 							</Button>
 						</div>

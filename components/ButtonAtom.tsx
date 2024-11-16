@@ -17,6 +17,7 @@ interface ButtonProps {
 		| "link"
 		| null
 		| undefined;
+	disabeld?: boolean;
 }
 
 const ButtonAtom = ({
@@ -26,11 +27,12 @@ const ButtonAtom = ({
 	type = "submit",
 	onClick = () => null,
 	variant = "secondary",
+	disabeld = false,
 }: ButtonProps) => {
 	return (
 		<Button
 			type={type}
-			disabled={isLoading}
+			disabled={disabeld || isLoading}
 			className={cn(
 				{ "shad-primary-btn": variant === "secondary" },
 				"w-full text-base",
