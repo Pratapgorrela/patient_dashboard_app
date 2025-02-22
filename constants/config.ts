@@ -1,4 +1,4 @@
-import { CircleCheck, CircleX } from "lucide-react";
+import { CircleCheck, CircleX, TriangleAlert } from "lucide-react";
 
 export const app_constants = {
 	DEFAULT_ALERT_CONFIG: {
@@ -13,5 +13,11 @@ export const app_constants = {
 		colour: "#800000",
 		icon: CircleX,
 	},
-	PROTECTED_ROUTES: ["/dashboard"],
+	WARNING_ALERT_CONFIG: {
+		headerLabel: "Warning",
+		description:
+			"Something Went wrong. Please reach out to support team for help!",
+		colour: "#FAB12F",
+		icon: TriangleAlert,
+	},
 };

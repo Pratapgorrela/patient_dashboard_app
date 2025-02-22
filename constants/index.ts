@@ -9,6 +9,7 @@ export enum FormFieldType {
 	PHONE_INPUT = "phone",
 	CHECKBOX = "checkbox",
 	DATE_PICKER = "datepicker",
+	TIME_PICKER = "timepicker",
 	SKELETON = "skeleton",
 	SELECT = "select",
 	TEXTAREA = "textarea",
@@ -22,15 +23,19 @@ export const AppointmentActionsType: {
 		label: string;
 	};
 } = {
-	CREATE: { key: "create", value: "created", label: "Create Appointment" },
-	UPDATE: { key: "update", value: "updated", label: "Reschedule Appointment" },
+	CREATE: { key: "create", value: "pending", label: "Create Appointment" },
+	UPDATE: { key: "update", value: "pending", label: "Reschedule Appointment" },
 	SCHEDULE: {
 		key: "schedule",
 		value: "scheduled",
 		label: "Schedule Appointment",
 	},
 	CANCEL: { key: "cancel", value: "cancelled", label: "Cancel Appointment" },
-	COMPLETE: { key: "complete", value: "completed", label: "" },
+	COMPLETE: {
+		key: "complete",
+		value: "completed",
+		label: "Appointment Completed",
+	},
 };
 
 export const UserTypes = [
@@ -147,3 +152,10 @@ export const ERRORS = {
 	LOGIN: {},
 	APPOINTMENT: {},
 };
+
+export const DEFAULT_WORKING_HOURS = {
+	from: new Date(new Date().setHours(9, 0, 0)),
+	till: new Date(new Date().setHours(18, 0, 0)),
+};
+
+export const DATE_FORMAT = "dd/MM/yyyy";

@@ -405,6 +405,14 @@
     align-items: center !important;
 }
 
+.date-selected {
+  color: #24ae7c;
+}
+
+.rdp{
+    width: fit-content;
+}
+
 /* =====  REACT PHONE NUMBER INPUT OVERRIDES */
 .PhoneInputInput {
     outline: none;

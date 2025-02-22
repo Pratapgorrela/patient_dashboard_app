@@ -5,3 +5,12 @@ export const UserOtpValidation = z.object({
 		message: "Your one-time password must be 6 characters.",
 	}),
 });
+
+export const DefaultTimeFormValidation = z.object({
+	from: z.date({
+		required_error: "Invalid start time",
+	}),
+	till: z.date({
+		required_error: "Invalid end time",
+	}),
+});
