@@ -1,9 +1,10 @@
-import { User, Mail, X } from "lucide-react";
+import { User, Mail, X, CalendarDays } from "lucide-react";
 
 export const enum ICON_NAMES {
 	user = "USER",
 	email = "EMAIL",
 	close = "CLOSE",
+	calendar = "CALENDAR",
 }
 
 export const getIcon = (name: string, rest?: unknown) => {
@@ -28,6 +29,15 @@ export const getIcon = (name: string, rest?: unknown) => {
 			);
 		case ICON_NAMES.close:
 			return <X {...(rest || {})} />;
+		case ICON_NAMES.calendar:
+			return (
+				<CalendarDays
+					height={24}
+					width={24}
+					className="self-center ml-2"
+					{...(rest || {})}
+				/>
+			);
 		default:
 			return <></>;
 	}

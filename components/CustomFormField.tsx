@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -28,6 +29,17 @@ import { FormFieldType } from "@/constants";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { ReactNode } from "react";
+import "./customFormField.style.scss";
+
+// {
+// 		[key: string]: {
+// 			message: string;
+// 			type: string;
+// 			ref: {
+// 				name: string;
+// 			};
+// 		};
+// 	}
 
 interface CustomProps {
 	control: Control<any>;
@@ -44,6 +56,7 @@ interface CustomProps {
 	dateFormat?: string;
 	showTimeSelect?: boolean;
 	childern?: ReactNode;
+	className?: string;
 	renderSkeleton?: (field: any) => ReactNode;
 	options?: any[];
 	selectKey?: string;
@@ -51,6 +64,10 @@ interface CustomProps {
 	maxDate?: Date;
 	ref?: any;
 	onChange?: (value: any) => void;
+	showErrors?: boolean;
+	errors?: any;
+	minTime?: Date;
+	maxTime?: Date;
 }
 
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
@@ -58,6 +75,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		fieldType,
 		name = "",
 		label = "",
+		className = "",
 		optionLabel = "label",
 		placeholder = "",
 		icon = null,
@@ -74,7 +92,12 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		maxDate = undefined,
 		ref,
 		onChange,
+		showErrors = true,
+		errors,
+		minTime = undefined,
+		maxTime = undefined,
 	} = props;
+	const showErrorBorder = !showErrors && !!errors?.[name];
 
 	switch (fieldType) {
 		case FormFieldType.INPUT:
@@ -161,6 +184,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 						className="flex h-11 gap-6 xl:justify-between"
 						onValueChange={field.onChenge}
 						defaultValue={field.value}
+						value={field.value}
 						disabled={disabled}>
 						{options?.map(({ label, value }) => (
 							<div key={value} className="radio-group">
@@ -171,6 +195,27 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 							</div>
 						))}
 					</RadioGroup>
+				</FormControl>
+			);
+
+		case FormFieldType.TIME_PICKER:
+			return (
+				<FormControl>
+					<DatePicker
+						selected={field.value}
+						onChange={field.onChange}
+						showTimeSelect
+						showTimeSelectOnly
+						timeIntervals={30}
+						timeCaption="Time"
+						dateFormat="h:mm aa"
+						placeholderText={placeholder || "Select time"}
+						className={`h-10 p-3 min-w-32 pr-0 rounded-md border ${className} ${
+							showErrorBorder ? "border-red-800" : ""
+						}`}
+						minTime={minTime}
+						maxTime={maxTime}
+					/>
 				</FormControl>
 			);
 
@@ -204,7 +249,10 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 			return (
 				<FormControl>
 					<Select
-						onValueChange={field.onChange}
+						onValueChange={(value) => {
+							field.onChange(value);
+							onChange && onChange(value);
+						}}
 						defaultValue={field.value}
 						value={field.value}
 						disabled={disabled}>
@@ -243,7 +291,14 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 };
 
 const CustomFormField = (props: CustomProps) => {
-	const { control, fieldType, name, label, required = false } = props;
+	const {
+		control,
+		fieldType,
+		name,
+		label,
+		required = false,
+		showErrors = true,
+	} = props;
 	return (
 		<FormField
 			control={control}
@@ -257,7 +312,7 @@ const CustomFormField = (props: CustomProps) => {
 						</FormLabel>
 					)}
 					<RenderField field={field} props={props} />
-					<FormMessage className="shad-error" />
+					{showErrors && <FormMessage className="shad-error" />}
 				</FormItem>
 			)}
 		/>

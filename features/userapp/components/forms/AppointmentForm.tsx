@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import CustomFormField from "../../../../components/CustomFormField";
-import Button from "../../../../components/ButtonAtom";
+import CustomFormField from "@/components/CustomFormField";
+import Button from "@/components/ButtonAtom";
 import { getAppointmentSchema } from "@/features/userapp/types/validation";
 import { useRouter } from "next/navigation";
 import {
@@ -51,17 +51,18 @@ const AppointmentForm = ({
 	const firstRender = useRef(true);
 	const icons = getIcons([ICON_NAMES.user, ICON_NAMES.email]);
 
-	const { ERROR_ALERT_CONFIG } = app_constants;
+	const { WARNING_ALERT_CONFIG } = app_constants;
 
 	const status = StatusMapper?.[type];
 	const userId = user?.userId || GUEST_USER_ID;
-	const createAction = AppointmentActionsType.CREATE.key;
-	const updateAction = AppointmentActionsType.UPDATE.key;
-	const cancelAction = AppointmentActionsType.CANCEL.key;
-	// const scheduleAction = AppointmentActionsType.SCHEDULE.key;
-	const isCancelled =
-		appointment?.status === AppointmentActionsType.CANCEL.value;
-	const [isAlertOpen, setIsAlertOpen] = useState(isCancelled && !isReadonly);
+	const createAction = AppointmentActionsType.CREATE;
+	const updateAction = AppointmentActionsType.UPDATE;
+	const cancelAction = AppointmentActionsType.CANCEL;
+	// const scheduleAction = AppointmentActionsType.SCHEDULE;
+
+	const isCancelled = appointment?.status === cancelAction.value;
+	const isUpdateDisabled = appointment?.status !== createAction.value;
+	const [isAlertOpen, setIsAlertOpen] = useState(isUpdateDisabled);
 
 	const APPOINTMENT_ERRORS = { ...ERRORS.GLOBAL, ...ERRORS.APPOINTMENT };
 
@@ -69,7 +70,7 @@ const AppointmentForm = ({
 
 	const getDefaultValues = () => {
 		const data =
-			type === createAction && user?.$id
+			type === createAction.key && user?.$id
 				? user
 				: appointment?.$id
 				? appointment
@@ -160,7 +161,7 @@ const AppointmentForm = ({
 					note: values?.note || "",
 					updatedBy: userId,
 				},
-				type: type === updateAction ? createAction : type,
+				type: type === updateAction.key ? createAction.key : type,
 			};
 			const updatedAppointmentData = await updateAppointment(
 				appointmentToUpdate
@@ -168,7 +169,7 @@ const AppointmentForm = ({
 			if (updatedAppointmentData) {
 				setOpen && setOpen(false);
 				form.reset();
-				if (!setOpen && type === updateAction) {
+				if (!setOpen && type === updateAction.key) {
 					router.push(
 						`/fortis/patient/appointment/success?appointmentId=${appointment?.$id}&isUpdated=true`
 					);
@@ -195,7 +196,7 @@ const AppointmentForm = ({
 		try {
 			if (!user?.userId) {
 				return handleGuestAppointmentChanges();
-			} else if (type === createAction) {
+			} else if (type === createAction.key) {
 				await handleCreateAppointment(values);
 			} else if (appointment?.$id) {
 				await handleUpdateAppointment(values);
@@ -265,21 +266,20 @@ const AppointmentForm = ({
 				open={isAlertOpen}
 				setIsopen={setIsAlertOpen}
 				{...{
-					...ERROR_ALERT_CONFIG,
-					description:
-						"Selected Appointment is Cancelled, Please create a new one.",
+					...WARNING_ALERT_CONFIG,
+					description: `Appointment is in ${appointment?.status} status. Please reach out to support team for any changes.`,
 				}}
 			/>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
 					className="space-y-6 flex-1 h-80 overflow-scroll md:h-full md:overflow-auto">
-					{type === createAction && HeaderContent}
-					{type === updateAction &&
+					{type === createAction.key && HeaderContent}
+					{type === updateAction.key &&
 						!isReadonly &&
 						!setOpen &&
 						UpdateHeaderContent}
-					{type !== cancelAction && (
+					{type !== cancelAction.key && (
 						<div className="flex gap-8 flex-col">
 							<div className="flex flex-col gap-6 xl:flex-row">
 								<CustomFormField
@@ -290,7 +290,7 @@ const AppointmentForm = ({
 									label="Full name"
 									placeholder="Full name"
 									icon={icons?.[ICON_NAMES.user]}
-									disabled={isReadonly || type === updateAction}
+									disabled={isReadonly || type === updateAction.key}
 								/>
 								<CustomFormField
 									control={form.control}
@@ -299,7 +299,7 @@ const AppointmentForm = ({
 									name="phone"
 									label="Phone"
 									placeholder="123 456 7890"
-									disabled={isReadonly || type === updateAction}
+									disabled={isReadonly || type === updateAction.key}
 								/>
 							</div>
 							<div className="flex flex-col gap-6 xl:flex-row">
@@ -310,7 +310,7 @@ const AppointmentForm = ({
 									label="Email"
 									placeholder="email@gmail.com"
 									icon={icons?.[ICON_NAMES.email]}
-									disabled={isReadonly || type === updateAction}
+									disabled={isReadonly || type === updateAction.key}
 								/>
 								<CustomFormField
 									control={form.control}
@@ -319,7 +319,7 @@ const AppointmentForm = ({
 									name="gender"
 									label="Gender"
 									options={GenderOptions}
-									disabled={isReadonly || type === updateAction}
+									disabled={isReadonly || type === updateAction.key}
 								/>
 							</div>
 							<div className="flex flex-col gap-6 xl:flex-row">
@@ -332,7 +332,7 @@ const AppointmentForm = ({
 									label="Doctor"
 									placeholder="Select a Doctor"
 									options={doctors}
-									disabled={isReadonly}
+									disabled={isReadonly || isUpdateDisabled}
 								/>
 								<CustomFormField
 									control={form.control}
@@ -344,7 +344,7 @@ const AppointmentForm = ({
 									dateFormat="MM/dd/yyyy - h:mm aa"
 									minDate={new Date()}
 									maxDate={addDays(new Date(), 15)}
-									disabled={isReadonly}
+									disabled={isReadonly || isUpdateDisabled}
 								/>
 							</div>
 							<div className="flex flex-col gap-6 xl:flex-row">
@@ -355,7 +355,7 @@ const AppointmentForm = ({
 									name="reason"
 									label="Reason for appointment"
 									placeholder="Enter reason for appointment"
-									disabled={isReadonly}
+									disabled={isReadonly || isUpdateDisabled}
 								/>
 								<CustomFormField
 									control={form.control}
@@ -363,14 +363,12 @@ const AppointmentForm = ({
 									name="note"
 									label="Notes"
 									placeholder="Enter notes"
-									disabled={isReadonly}
+									disabled={isReadonly || isUpdateDisabled}
 								/>
 							</div>
 						</div>
 					)}
-					{(type === cancelAction ||
-						(isReadonly &&
-							appointment?.status === AppointmentActionsType.CANCEL.value)) && (
+					{(type === cancelAction.key || (isReadonly && isCancelled)) && (
 						<CustomFormField
 							control={form.control}
 							fieldType={FormFieldType.TEXTAREA}
@@ -378,12 +376,12 @@ const AppointmentForm = ({
 							name="cancellationReason"
 							label="Reason for cancellation"
 							placeholder="Enter reason for cancellation"
-							disabled={isReadonly}
+							disabled={isReadonly || isUpdateDisabled}
 						/>
 					)}
 					{!isReadonly && (
 						<div className="flex flex-col gap-6 xl:flex-row md:mt-20px ">
-							{type !== cancelAction && (
+							{type !== cancelAction.key && (
 								<Button
 									variant="ghost"
 									className="shad-gray-btn w-full md:p-6"
@@ -395,9 +393,11 @@ const AppointmentForm = ({
 							<Button
 								isLoading={isLoading}
 								className={`${
-									type === cancelAction ? "shad-danger-btn" : "shad-primary-btn"
+									type === cancelAction.key
+										? "shad-danger-btn"
+										: "shad-primary-btn"
 								} w-full md:p-6`}
-								disabeld={isCancelled}>
+								disabeld={isUpdateDisabled}>
 								{getSubmitBtnLabel()}
 							</Button>
 						</div>

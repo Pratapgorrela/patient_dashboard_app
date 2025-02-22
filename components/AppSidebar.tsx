@@ -45,7 +45,7 @@ export function AppSidebar({
 							height={1000}
 							width={1000}
 							alt="patient"
-							className=" h-10 w-fit"
+							className="h-10 w-fit"
 						/>
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -62,10 +62,12 @@ export function AppSidebar({
 										onClick={() => {
 											setSelectedOption(item.title);
 										}}>
-										<a href={item.url}>
-											<item.icon />
-											<span>{item.title}</span>
-										</a>
+										<div>
+											<item.icon width={24} height={24} className="!h-6 !w-6" />
+											<span className="font-semibold text-lg">
+												{item.title}
+											</span>
+										</div>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							))}

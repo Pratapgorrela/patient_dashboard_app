@@ -1,3 +1,13 @@
+import {
+	BookHeart,
+	Calendar,
+	Home,
+	Inbox,
+	LifeBuoy,
+	ReceiptText,
+	Settings,
+} from "lucide-react";
+
 export const PatientFormDefaultValues = {
 	firstName: "",
 	lastName: "",
@@ -34,4 +44,43 @@ export const IdentificationTypes = [
 	{ name: "Passport" },
 	{ name: "Student ID Card" },
 	{ name: "Voter ID Card" },
+];
+
+// Menu items.
+export const Items = [
+	{
+		title: "Account",
+		url: "#",
+		icon: Home,
+	},
+	{
+		title: "Appointments",
+		url: "#",
+		icon: Inbox,
+	},
+	{
+		title: "Reports",
+		url: "#",
+		icon: Calendar,
+	},
+	{
+		title: "Billing details",
+		url: "#",
+		icon: ReceiptText,
+	},
+	{
+		title: "Settings",
+		url: "#",
+		icon: Settings,
+	},
+	{
+		title: "Support",
+		url: "#",
+		icon: LifeBuoy,
+	},
+	{
+		title: "Feedback",
+		url: "#",
+		icon: BookHeart,
+	},
 ];

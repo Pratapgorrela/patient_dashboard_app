@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
+import { format, getHours, getMinutes } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -10,10 +11,22 @@ export const parseStringify = (value: unknown) =>
 
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
 
+export const formatDate = (value: string | Date, pattern = "dd/MM/yyyy") => {
+	return format(value, pattern);
+};
+
+export const setTime = (date: Date, hours: number, minutes: number) => {
+	return new Date(date.setHours(hours, minutes, 0));
+};
+
+export const getFormatedTime = (date: Date) => {
+	return `${getHours(date)}:${getMinutes(date)}`;
+};
+
 // FORMAT DATE TIME
 export const formatDateTime = (dateString: Date | string) => {
 	const dateTimeOptions: Intl.DateTimeFormatOptions = {
-		// weekday: "short", // abbreviated weekday name (e.g., 'Mon')
+		weekday: "short", // abbreviated weekday name (e.g., 'Mon')
 		month: "short", // abbreviated month name (e.g., 'Oct')
 		day: "numeric", // numeric day of the month (e.g., '25')
 		year: "numeric", // numeric year (e.g., '2023')

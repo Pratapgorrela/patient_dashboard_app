@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { UserSignupFormValidation } from "./features/userapp/types/validation";
-import { app_constants } from "./constants/config";
+import { ROUTES } from "./lib/routes";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: [
@@ -18,7 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			const isLoggedIn = !!auth?.user;
 			const { pathname } = nextUrl;
 			if (
-				app_constants.PROTECTED_ROUTES.filter((path) => pathname.includes(path))
+				ROUTES.PROTECTED_ROUTES.filter((path) => pathname.includes(path))
 					?.length &&
 				!isLoggedIn
 			) {
