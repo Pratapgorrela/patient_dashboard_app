@@ -40,11 +40,3 @@ This is a basic healthcare project:
 # UI - Admin page:
 
 ![image](https://github.com/user-attachments/assets/7db5d245-f680-427f-a53e-64d4b34e4890)
-
-# ----------- Useful Links!
-
-# Calendar - https://www.youtube.com/watch?v=3CMgznBdl-M
-
-# Nextauth - https://www.youtube.com/watch?v=DNtsJlmPda8&t=1944s
-
-# Folder structure - https://www.youtube.com/watch?v=xyxrB2Aa7KE&t=1186s
