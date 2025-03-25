@@ -33,7 +33,7 @@ This is a basic healthcare project:
 
 ![image](https://github.com/user-attachments/assets/a205ce48-6af3-438a-983b-8f6f1b46c5ae)
 
-# UI - Admin passkode modal:
+# UI - Admin passcode modal:
 
 ![image](https://github.com/user-attachments/assets/a22570cb-a74d-4da7-a998-ff66e19e9fc6)
 
