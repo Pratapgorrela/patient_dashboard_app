@@ -10,9 +10,11 @@ import { Clients, FormFieldType, UserTypes } from "@/constants";
 import { ClientSchema } from "@/features/clientapp/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+// import { useAuthStore } from "@/store/userAuthStore";
 
 export default function MainPage() {
 	const router = useRouter();
+	// const { session, user, jwt } = useAuthStore();
 	const form = useForm<z.infer<typeof ClientSchema>>({
 		resolver: zodResolver(ClientSchema),
 		defaultValues: {
@@ -25,9 +27,9 @@ export default function MainPage() {
 	async function onSubmit(values: z.infer<typeof ClientSchema>) {
 		setIsLoading(true);
 		try {
-			console.log("values=>>", values);
+			// console.log("values=>>", values);
 			// TODO: Save the selected value in state.
-			router.push(`/patient/${values.client}/signup`);
+			router.push(`/${values.client}/patient/signup`);
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -42,7 +44,8 @@ export default function MainPage() {
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
-							className="space-y-6 flex-1">
+							className="space-y-6 flex-1"
+						>
 							<div className="flex gap-2">
 								<CustomFormField
 									control={form.control}
