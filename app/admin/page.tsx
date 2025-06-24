@@ -5,15 +5,15 @@ import { getRecentAppointmentList } from "@/features/userapp/db/actions/appointm
 import { Appointment } from "@/types/appwrite.type";
 import Image from "next/image";
 import Link from "next/link";
-import { auth } from "@/auth";
+// import { auth } from "@/auth";
 
 const Admin = async () => {
-	const session = await auth();
-	const appointments = await getRecentAppointmentList();
+	// const session = await auth();
+	const appointments = await getRecentAppointmentList("");
 
 	return (
 		<div className="mx-auto flex max-w-7xl flex-col space-y-14">
-			<div>{session?.user?.email}</div>
+			{/* <div>{session?.user?.email}</div> */}
 			<header className="admin-header">
 				<Link href="/" className="cursor-pointer">
 					<Image
@@ -35,7 +35,7 @@ const Admin = async () => {
 				</section>
 				<section className="admin-stat">
 					<StatCard
-						type="appointments"
+						type="scheduled"
 						count={appointments?.scheduledCount || 0}
 						label="Scheduled appointments"
 						icon="/assets/icons/appointments.svg"

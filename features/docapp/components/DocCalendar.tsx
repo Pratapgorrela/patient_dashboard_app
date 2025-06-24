@@ -5,6 +5,7 @@ import { DEFAULT_WORKING_HOURS } from "@/constants";
 import { getDoctorCalendar } from "../db/doctor.actions";
 import DefaultTimeSlot from "@/components/DefaultTimeSlot";
 import { dummyDocData } from "@/data/docData";
+import { callPrefixSum } from "@/DSA/arrays/prefixSum";
 
 export const DocCalendar = () => {
 	const [docCalendarData, setDocCalendarData] =
@@ -21,15 +22,17 @@ export const DocCalendar = () => {
 	// 	}
 	// }, []);
 
+	callPrefixSum();
+
 	useEffect(() => {
 		try {
 			const fetchDocCalendarData = async () => {
 				const data = await getDoctorCalendar(dummyDocData.$id);
 				setDocCalendarData(data!);
 				console.log(
-					"data=>",
-					data?.defaultTimeSlot,
-					JSON.parse(data?.defaultTimeSlot || "")
+					"data=>"
+					// data?.defaultTimeSlot,
+					// JSON.parse(data?.defaultTimeSlot || "")
 				);
 			};
 			fetchDocCalendarData();
@@ -43,7 +46,7 @@ export const DocCalendar = () => {
 			<DefaultTimeSlot {...DEFAULT_WORKING_HOURS} />
 			<div className="flex mt-6 gap-2 md:gap-6 flex-col md:flex-row">
 				<RenderCalendar />
-				<Timecard />          
+				<Timecard />
 			</div>
 		</div>
 	);

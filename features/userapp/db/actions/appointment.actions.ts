@@ -1,10 +1,11 @@
 "use server";
 
 import { ID, Query } from "node-appwrite";
-import { databases, dbConfig } from "@/lib/types/appwrite.config";
 import { parseStringify } from "@/lib/utils";
 import { Appointment } from "@/types/appwrite.type";
 import { revalidatePath } from "next/cache";
+import { databases } from "@/models/client/config";
+import { dbConfig } from "@/env_config";
 // import { sendSMSNotification } from "@/lib/actions/common.actions";
 
 export const getAppointment = async (appointmentId: string) => {

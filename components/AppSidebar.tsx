@@ -18,8 +18,8 @@ import {
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import clsx from "clsx";
-import { useSession } from "next-auth/react";
-import { handleSignOut } from "@/lib/actions/auth.actions";
+// import { useSession } from "next-auth/react";
+// import { handleSignOut } from "@/lib/actions/auth.actions";
 import Image from "next/image";
 
 export function AppSidebar({
@@ -32,8 +32,8 @@ export function AppSidebar({
 	selectedOption: string;
 	setSelectedOption: Dispatch<SetStateAction<string>>;
 }) {
-	const { data: session } = useSession();
-	const user = session?.user;
+	// const { data: session } = useSession();
+	// const user = session?.user;
 
 	return (
 		<Sidebar>
@@ -61,7 +61,8 @@ export function AppSidebar({
 										})}
 										onClick={() => {
 											setSelectedOption(item.title);
-										}}>
+										}}
+									>
 										<div>
 											<item.icon width={24} height={24} className="!h-6 !w-6" />
 											<span className="font-semibold text-lg">
@@ -81,15 +82,16 @@ export function AppSidebar({
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuButton className="text-base h-12">
-									<User2 /> {user?.name || "Guest"}
+									{/* <User2 /> {user?.name || "Guest"} */}
 									<ChevronUp className="ml-auto" />
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
 								side="top"
-								className="w-[--radix-popper-anchor-width]">
+								className="w-[--radix-popper-anchor-width]"
+							>
 								<DropdownMenuItem>
-									<span onClick={handleSignOut}>Sign out</span>
+									{/* <span onClick={handleSignOut}>Sign out</span> */}
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>

@@ -56,7 +56,7 @@ export const UserTypes = [
 	},
 	{
 		Id: 4,
-		name: "user",
+		name: "patient",
 		label: "User",
 	},
 ];
@@ -143,10 +143,10 @@ export const GUEST_USER_ID = "672ca270002863181621";
 
 export const ERRORS = {
 	GLOBAL: {
-		USER_NOT_EXIST: "User does not exist! Please signup to create appointment.",
-		USER_EXIST: "User already exist! Please login with your phone number.",
-		INVALID_OTP: "Invalid OTP. Please try again!",
-		UNKNOWN_ERR: "Something went wrong! Please try again after sometime.",
+		USER_NOT_EXIST: "User does not exist. Please signup to create appointment.",
+		USER_EXIST: "User already exist. Please login with your phone number.",
+		INVALID_OTP: "Invalid OTP. Please try again.",
+		UNKNOWN_ERR: "Something went wrong. Please try again after sometime.",
 	},
 	SIGNUP: {},
 	LOGIN: {},

@@ -3,7 +3,6 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import { SessionProvider } from "next-auth/react";
 
 const fontSans = Plus_Jakarta_Sans({
 	subsets: ["latin"],
@@ -27,12 +26,11 @@ export default function RootLayout({
 				className={cn(
 					"min-h-screen bg-dark-300 font-sans antialiased",
 					fontSans.variable
-				)}>
-				<SessionProvider>
-					<ThemeProvider attribute="class" defaultTheme="dark">
-						{children}
-					</ThemeProvider>
-				</SessionProvider>
+				)}
+			>
+				<ThemeProvider attribute="class" defaultTheme="dark">
+					{children}
+				</ThemeProvider>
 			</body>
 		</html>
 	);

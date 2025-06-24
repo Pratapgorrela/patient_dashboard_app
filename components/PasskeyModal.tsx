@@ -49,7 +49,7 @@ const PasskeyModal = ({
 
 	const closeModal = () => {
 		setOpen(false);
-		onClose && onClose();
+		onClose?.();
 	};
 
 	const closeIcon = getIcon(ICON_NAMES.close, {
@@ -69,8 +69,8 @@ const PasskeyModal = ({
 		const response = await validatePasskey(data.passkey);
 		if (response === "Success") {
 			setOpen(false);
-			onSuccess && onSuccess();
-			redirectUrl && router.push(redirectUrl);
+			onSuccess?.();
+			if (redirectUrl) router.push(redirectUrl);
 		} else {
 			setError(response);
 		}
@@ -91,7 +91,8 @@ const PasskeyModal = ({
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(onSubmit)}
-						className="w-2/3 space-y-6">
+						className="w-2/3 space-y-6"
+					>
 						<FormField
 							control={form.control}
 							name="passkey"

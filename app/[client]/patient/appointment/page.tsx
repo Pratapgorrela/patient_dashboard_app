@@ -1,6 +1,6 @@
 import Image from "next/image";
 import AppointmentForm from "@/features/userapp/components/forms/AppointmentForm";
-import { auth } from "@/auth";
+// import { auth } from "@/auth";
 import { getAppointment } from "@/features/userapp/db/actions/appointment.actions";
 import { AppointmentActionsType } from "@/constants";
 
@@ -12,7 +12,7 @@ export default async function NewAppointment({
 	const appointment = appointmentId
 		? await getAppointment(appointmentId)
 		: null;
-	const session = await auth();
+	// const session = await auth();
 
 	return (
 		<div className="flex h-screen max-h-screen">
@@ -31,7 +31,7 @@ export default async function NewAppointment({
 								? AppointmentActionsType.UPDATE.key
 								: AppointmentActionsType.CREATE.key
 						}
-						user={session?.user}
+						// user={}
 						appointment={appointment}
 					/>
 					<p className="copyright py-12">© 2024 CarePulse</p>

@@ -1,5 +1,6 @@
-import { databases, dbConfig } from "@/lib/types/appwrite.config";
+import { dbConfig } from "@/env_config";
 import { parseStringify } from "@/lib/utils";
+import { databases } from "@/models/client/config";
 import { Query } from "node-appwrite";
 
 export const getDoctorsList: () => Promise<
