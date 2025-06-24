@@ -20,7 +20,7 @@ const AppointmentTable = () => {
 
 	useEffect(() => {
 		async function getAppointments() {
-			const appointmentsData = await getRecentAppointmentList();
+			const appointmentsData = await getRecentAppointmentList("");
 			setAppointments(appointmentsData);
 		}
 		getAppointments();
@@ -34,7 +34,7 @@ const AppointmentTable = () => {
 				</section>
 				<section className="admin-stat">
 					<StatCard
-						type="appointments"
+						type="scheduled"
 						count={appointments?.scheduledCount || 0}
 						label="Completed appointments"
 						icon="/assets/icons/appointments.svg"

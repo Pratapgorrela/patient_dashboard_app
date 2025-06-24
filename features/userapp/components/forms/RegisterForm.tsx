@@ -54,9 +54,9 @@ const RegisterForm = ({ user }: { user?: User }) => {
 			const fetchPatientData = async () => {
 				firstRender.current = false;
 				const data: Patient | undefined | null = await getPatient(
-					user?.userId || ""
+					user?.userId || "6807dc2f00116c0235f2"
 				);
-				data && form.reset(data);
+				// data && form.reset(data);
 				setPatientData(data);
 			};
 			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -125,7 +125,8 @@ const RegisterForm = ({ user }: { user?: User }) => {
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
-					className="space-y-12 flex-1 pb-10">
+					className="space-y-12 flex-1 pb-10"
+				>
 					<section className="space-y-4 flex items-center md:items-start flex-col">
 						<h1 className="header !text-xl pt-4 md:!text-3xl md:pt-0 ">
 							Welcome 👋

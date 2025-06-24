@@ -10,26 +10,26 @@ import { Clients, FormFieldType, UserTypes } from "@/constants";
 import { ClientSchema } from "@/features/clientapp/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-// import { useAuthStore } from "@/store/userAuthStore";
+import { useConfigStore } from "@/store/configStore";
 
 export default function MainPage() {
 	const router = useRouter();
-	// const { session, user, jwt } = useAuthStore();
 	const form = useForm<z.infer<typeof ClientSchema>>({
 		resolver: zodResolver(ClientSchema),
 		defaultValues: {
 			client: "",
+			userType: "patient",
 		},
 	});
+	const { setRouteConfig } = useConfigStore();
 
 	const [isLoading, setIsLoading] = useState(false);
 
 	async function onSubmit(values: z.infer<typeof ClientSchema>) {
 		setIsLoading(true);
 		try {
-			// console.log("values=>>", values);
-			// TODO: Save the selected value in state.
-			router.push(`/${values.client}/patient/signup`);
+			setRouteConfig({ client: values.client, userType: values.userType });
+			router.push(`/${values.client}/${values.userType}/signup`);
 		} catch (error) {
 			console.log(error);
 		} finally {

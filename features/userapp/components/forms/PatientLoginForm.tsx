@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -9,24 +10,34 @@ import { Form } from "@/components/ui/form";
 import CustomFormField from "../../../../components/CustomFormField";
 import Button from "../../../../components/ButtonAtom";
 import { UserLoginFormValidation } from "@/features/userapp/types/validation";
-// import {
-// getUserByPhone,
-// validateUserLogin,
-// } from "../../db/actions/patient.actions";
 import { ERRORS, FormFieldType } from "@/constants";
 import { Models } from "node-appwrite";
 import PasskeyModal from "@/components/PasskeyModal";
-import { handleCredentialsSignIn } from "@/lib/actions/auth.actions";
 import { useRouter } from "next/navigation";
-import { PatientData, SessionData, TokenData } from "@/data/data";
-import { Patient } from "@/types/appwrite.type";
-// import { generatePhoneToken } from "@/lib/actions/common.actions";
+import {
+	createUserSession,
+	createUserSessionByEmail,
+	generatePhoneToken,
+	getUserByPhone,
+	getUserTeamsAndMemberships,
+} from "@/lib/actions/common.actions";
+import { account } from "@/models/client/config";
+import { useAuthStore } from "@/store/userAuthStore";
+import { useConfigStore } from "@/store/configStore";
+
+// import { handleCredentialsSignIn } from "@/lib/actions/auth.actions";
+// import { PatientData, SessionData, TokenData } from "@/data/data";
+// import { getPatient } from "../../db/actions/patient.actions";
 
 const PatientLoginForm = () => {
 	const router = useRouter();
+	const { setAuthData, setTeamsAndMemberhips } = useAuthStore();
+	const {
+		routeConfig: { client, userType },
+	} = useConfigStore();
+
 	const [isLoading, setIsLoading] = useState(false);
-	const [token, setToken] = useState<Models.Token | null>(null);
-	const [patient, setPatient] = useState<Patient | null | undefined>();
+	const [token, setToken] = useState<Models.Session | null>(null);
 	const [error, setError] = useState("");
 
 	const LOGIN_ERRORS = { ...ERRORS.GLOBAL, ...ERRORS.LOGIN };
@@ -38,59 +49,112 @@ const PatientLoginForm = () => {
 		},
 	});
 
-	async function onSubmit(values: z.infer<typeof UserLoginFormValidation>) {
+	const sendPhoneToken = async (
+		values: z.infer<typeof UserLoginFormValidation>
+	) => {
+		//STEP-2: Send OTP to user phone number.
+		const tokenData = await generatePhoneToken(values.phone);
+		if (tokenData) {
+			setToken(tokenData as Models.Session);
+			setIsLoading(false);
+		} else setError(LOGIN_ERRORS.UNKNOWN_ERR);
+	};
+
+	const initiatePhoneLogin = async (
+		values: z.infer<typeof UserLoginFormValidation>
+	) => {
 		setError("");
-		setPatient(null);
-		setIsLoading(true);
 		setToken(null);
+		setIsLoading(true);
 		try {
-			// const patient = await getUserByPhone(values.phone);
-			const patient = PatientData;
-			setPatient(patient);
-			if (values.phone && patient?.$id) {
-				// const tokenData = await generatePhoneToken(values.phone);
-				const tokenData = TokenData;
-				setToken(tokenData as Models.Token);
+			// Check user phone is already registered.
+			const userData = await getUserByPhone(values.phone);
+			if (userData && userData?.phoneVerification) {
+				// User account is existed and verified.
+				await sendPhoneToken(values);
 			} else {
+				// User account is either not existed or not verified.
 				setError(LOGIN_ERRORS.USER_NOT_EXIST);
-				setToken(null);
 			}
 		} catch (error) {
-			console.log(error);
 			setToken(null);
+			setError(LOGIN_ERRORS.UNKNOWN_ERR);
+			console.log(error);
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	async function setTeamAndMemberships(userId: string) {
+		const res = await getUserTeamsAndMemberships(userId);
+		setTeamsAndMemberhips(res);
+		console.log("res=>>", res);
+	}
+
+	// Use this for testing purpose.
+	const initiatePasswordLogin = async () => {
+		setError("");
+		setToken(null);
+		setIsLoading(true);
+		try {
+			const session = await createUserSessionByEmail();
+			const [user, { jwt }] = await Promise.all([
+				account.get(),
+				account.createJWT(),
+			]);
+			console.log("userSession=>>", user, jwt, session);
+			setAuthData({ session, user, jwt });
+			setToken(session);
+			if (user?.$id) await setTeamAndMemberships(user?.$id);
+			if (jwt) router.push(`/${client}/${userType}/dashboard`);
+		} catch (error) {
+			setToken(null);
+			setError(LOGIN_ERRORS.UNKNOWN_ERR);
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	async function onSubmit(values: z.infer<typeof UserLoginFormValidation>) {
+		await initiatePasswordLogin();
 	}
 
 	const validatePasskey = async (passkey: string) => {
-		// const session = token?.userId
-		// 	? await validateUserLogin(token.userId, passkey)
-		// 	: null;
-		const session = SessionData;
-		if (passkey === "123321" && session?.secret && patient) {
-			await handleCredentialsSignIn(patient);
-			return "Success";
+		if (passkey && token?.userId) {
+			const session = token?.userId
+				? await createUserSession(token.userId, passkey)
+				: null;
+			console.log("session=>>", session);
+			if (session) {
+				// // Get patient Data using userId.
+				// const patient: any = await getPatient(token.userId);
+				// console.log("patient=>>", patient);
+
+				return "Success";
+			}
+			return LOGIN_ERRORS.UNKNOWN_ERR;
 		}
 		return LOGIN_ERRORS.INVALID_OTP;
 	};
 
 	const handleSignup = () => {
-		router.push(`/fortis/patient/signup`);
+		router.push(`/${client}/${userType}/signup`);
 	};
 
 	return (
 		<div>
-			{token?.userId && (
+			{/* {token?.userId && (
 				<PasskeyModal
 					validatePasskey={validatePasskey}
 					redirectUrl="/fortis/patient/dashboard"
 				/>
-			)}
+			)} */}
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
-					className="space-y-6 flex-1">
+					className="space-y-6 flex-1"
+				>
 					<section className="mb-12 space-y-4">
 						<h1 className="header">Hi there 👋</h1>
 						<p className="text-dark-700">Login to schedule your appointment.</p>
@@ -111,15 +175,17 @@ const PatientLoginForm = () => {
 						variant="ghost"
 						className="shad-gray-btn"
 						type="button"
-						onClick={handleSignup}>
+						onClick={handleSignup}
+					>
 						{`Don't have a account? `}
 						<b>Sign Up</b>
 					</Button>
 					<Button
-						onClick={() => router.push(`/fortis/patient/appointment`)}
+						onClick={() => router.push(`/${client}/${userType}/appointment`)}
 						variant={"default"}
 						type="button"
-						className="!bg-blue-500">
+						className="!bg-blue-500"
+					>
 						Book a New Appointment
 					</Button>
 				</form>

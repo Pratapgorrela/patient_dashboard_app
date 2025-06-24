@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Appointment } from "@/types/appwrite.type";
 import AppointmentForm from "./forms/AppointmentForm";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 
 const AppointmentModal = ({
 	type,
@@ -25,8 +25,8 @@ const AppointmentModal = ({
 	isDisabled?: boolean;
 	isReadonly?: boolean;
 }) => {
-	const { data: sessionData } = useSession();
-	const user = sessionData?.user;
+	// const { data: sessionData } = useSession();
+	// const user = sessionData?.user;
 	const statusMapper = { schedule: "scheduled", cancel: "cancelled" };
 	const isActionDisabled =
 		isDisabled || statusMapper?.[type] === appointment?.status;
@@ -74,7 +74,7 @@ const AppointmentModal = ({
 				</DialogHeader>
 				<AppointmentForm
 					type={type}
-					user={user}
+					// user={user}
 					appointment={appointment}
 					setOpen={setIsopen}
 					isReadonly={isReadonly}

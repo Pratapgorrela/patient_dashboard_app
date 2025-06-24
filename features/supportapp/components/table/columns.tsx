@@ -4,7 +4,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Appointment } from "@/types/appwrite.type";
 import StatusBadge from "@/components/StatusBadge";
 import { formatDateTime } from "@/lib/utils";
-import { Doctors } from "@/constants";
 import Image from "next/image";
 import AppointmentModal from "@/features/userapp/components/AppointmentModal";
 
@@ -70,15 +69,15 @@ export const columns: ColumnDef<Appointment>[] = [
 					<div className="flex gap-1">
 						<AppointmentModal
 							type="schedule"
-							patientId={data.patient.$id}
-							userId={data.userId}
+							// patientId={data.patient.$id}
+							// userId={data.userId}
 							appointment={data}
 							isDisabled={data.status !== "cancelled"}
 						/>
 						<AppointmentModal
 							type="cancel"
-							patientId={data.patient.$id}
-							userId={data.userId}
+							// patientId={data.patient.$id}
+							// userId={data.userId}
 							appointment={data}
 							isDisabled={!["scheduled", "pending"].includes(data.status)}
 						/>
