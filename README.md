@@ -1,4 +1,4 @@
-This is a basic healthcare project:
+This app helps the patients to book appointments and track their medical history:
 
 # Features:
 
