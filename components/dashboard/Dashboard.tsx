@@ -2,11 +2,13 @@
 
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/store/userAuthStore";
 import { SquareMenu } from "lucide-react";
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import { redirect } from "next/navigation";
+import { Dispatch, ReactNode, SetStateAction, useEffect } from "react";
 
 interface DashboardProps {
-	items: { title: string; url: string; icon: any }[];
+	items: { title: string; url: string; icon: unknown }[];
 	selectedOption: string;
 	setSelectedOption: Dispatch<SetStateAction<string>>;
 	SidebarMainContent: ReactNode;
@@ -20,6 +22,14 @@ export const Dashboard = ({
 	SidebarMainContent,
 	Content = null,
 }: DashboardProps) => {
+	const { user } = useAuthStore();
+
+	useEffect(() => {
+		if (!user?.$id) {
+			redirect("/fortis/patient/login");
+		}
+	}, [user]);
+
 	return (
 		<SidebarProvider className="app-sidebar-provider">
 			<AppSidebar

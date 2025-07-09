@@ -74,7 +74,6 @@ const AppointmentModal = ({
 				</DialogHeader>
 				<AppointmentForm
 					type={type}
-					// user={user}
 					appointment={appointment}
 					setOpen={setIsopen}
 					isReadonly={isReadonly}

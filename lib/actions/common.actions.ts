@@ -65,15 +65,6 @@ export const generatePhoneToken = async (phone: string) => {
 	}
 };
 
-export const validatePhoneToken = async (userId: string, secret: string) => {
-	try {
-		return await account.createSession(userId, secret);
-	} catch (error: unknown) {
-		console.log(error);
-		return null;
-	}
-};
-
 export const createUserSession = async (userId: string, passKey: string) => {
 	try {
 		const session = await account.createSession(userId, passKey);

@@ -6,6 +6,7 @@ import { Appointment } from "@/types/appwrite.type";
 import { revalidatePath } from "next/cache";
 import { databases } from "@/models/client/config";
 import { dbConfig } from "@/env_config";
+// import { serverDatabases } from "@/models/server/config";
 // import { sendSMSNotification } from "@/lib/actions/common.actions";
 
 export const getAppointment = async (appointmentId: string) => {
@@ -21,12 +22,12 @@ export const getAppointment = async (appointmentId: string) => {
 	}
 };
 
-export const getRecentAppointmentList = async (phone: string) => {
+export const getRecentAppointmentList = async (id: string) => {
 	try {
 		const appointments = await databases.listDocuments(
 			dbConfig.DATABASE_ID!,
 			dbConfig.APPOINTMENT_COLLECTION_ID!,
-			[Query.equal("phone", phone), Query.orderDesc("$createdAt")]
+			[Query.equal("userId", id), Query.orderDesc("$createdAt")]
 		);
 
 		const initialCounts = {
@@ -107,13 +108,13 @@ export const updateAppointment = async ({
 }: // type,
 UpdateAppointmentParams) => {
 	try {
-		const updateAppointment = await databases.updateDocument(
+		const updatedAppointment = await databases.updateDocument(
 			dbConfig.DATABASE_ID!,
 			dbConfig.APPOINTMENT_COLLECTION_ID!,
 			appointmentId,
 			appointment
 		);
-		if (!updateAppointment) {
+		if (!updatedAppointment) {
 			throw new Error(`Appointment not found!`);
 		}
 
@@ -131,7 +132,7 @@ UpdateAppointmentParams) => {
 
 		// await sendSMSNotification(userId, smsMessage);
 		revalidatePath(`/fortis/patient/appointment/success`);
-		return parseStringify(updateAppointment);
+		return parseStringify(updatedAppointment);
 	} catch (error: unknown) {
 		console.log("error", error);
 		return null;

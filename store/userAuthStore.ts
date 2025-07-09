@@ -8,7 +8,7 @@ import { account } from "@/models/client/config";
 interface IUserAuth {
 	session: Models.Session | null;
 	user: Models.User<Models.Preferences> | null;
-	jwt: string | null;
+	jwt?: string | null;
 }
 
 interface ITeams {

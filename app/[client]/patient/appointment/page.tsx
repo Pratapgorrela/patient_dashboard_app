@@ -1,19 +1,20 @@
 import Image from "next/image";
 import AppointmentForm from "@/features/userapp/components/forms/AppointmentForm";
-// import { auth } from "@/auth";
 import { getAppointment } from "@/features/userapp/db/actions/appointment.actions";
 import { AppointmentActionsType } from "@/constants";
 
 export const revalidate = 0;
+
 export default async function NewAppointment({
 	searchParams,
 }: SearchParamProps) {
 	const appointmentId = (searchParams?.appointmentId as string) || "";
+
 	const appointment = appointmentId
 		? await getAppointment(appointmentId)
 		: null;
-	// const session = await auth();
 
+	// console.log("appointmentId=>>", appointment);
 	return (
 		<div className="flex h-screen max-h-screen">
 			<section className="remove-scrollbar container my-auto">
@@ -31,8 +32,8 @@ export default async function NewAppointment({
 								? AppointmentActionsType.UPDATE.key
 								: AppointmentActionsType.CREATE.key
 						}
-						// user={}
 						appointment={appointment}
+						isReadonly={false}
 					/>
 					<p className="copyright py-12">© 2024 CarePulse</p>
 				</div>

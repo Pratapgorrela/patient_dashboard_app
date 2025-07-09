@@ -7,22 +7,36 @@ import { z } from "zod";
 import { Form } from "@/components/ui/form";
 import CustomFormField from "../../../../components/CustomFormField";
 import Button from "../../../../components/ButtonAtom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserSignupFormValidation } from "@/features/userapp/types/validation";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 // import { handleCredentialsSignIn } from "@/lib/actions/auth.actions";
 import { ERRORS, FormFieldType } from "@/constants";
 import { getIcons, ICON_NAMES } from "@/lib/service";
 import PasskeyModal from "@/components/PasskeyModal";
 import {
 	createUser,
+	createUserSession,
 	generatePhoneToken,
-	validatePhoneToken,
 } from "@/lib/actions/common.actions";
 import { IUser } from "@/types/user";
+import { useConfigStore } from "@/store/configStore";
+import { account } from "@/models/client/config";
+import { useAuthStore } from "@/store/userAuthStore";
 
 const PatientSignupForm = () => {
 	const router = useRouter();
+	const {
+		routeConfig: { client, userType },
+	} = useConfigStore();
+	const { setAuthData, user } = useAuthStore();
+
+	useEffect(() => {
+		if (user?.$id) {
+			redirect(`/${client}/${userType}/dashboard`);
+		}
+	}, [user]);
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [userId, setUserId] = useState<string | null>(null);
 	const [error, setError] = useState("");
@@ -48,7 +62,7 @@ const PatientSignupForm = () => {
 	) => {
 		//STEP-2: Send OTP to user phone number.
 		const registeredData = await generatePhoneToken(values.phone);
-		if (registeredData) {
+		if (registeredData && registeredData?.["userId"]) {
 			setUserId(registeredData?.["userId"] as string);
 			setUserData(values);
 			setIsLoading(false);
@@ -77,7 +91,7 @@ const PatientSignupForm = () => {
 						: SIGNUP_ERRORS.UNKNOWN_ERR
 				);
 			} else if (createdUserInfo && createdUserInfo?.phoneVerification) {
-				// User account is available and verified.
+				// User account is already available and verified.
 				setError(SIGNUP_ERRORS.USER_EXIST);
 			} else setError(SIGNUP_ERRORS.UNKNOWN_ERR);
 		} catch (error) {
@@ -93,7 +107,7 @@ const PatientSignupForm = () => {
 	const validatePasskey = async (passkey: string) => {
 		if (userId && passkey && userData) {
 			// STEP-3: Verify OTP.
-			const userSession = await validatePhoneToken(userId, passkey);
+			const userSession = await createUserSession(userId, passkey);
 			console.log("userSession=>>", userSession);
 			if (!userSession) {
 				setError(SIGNUP_ERRORS.UNKNOWN_ERR);
@@ -101,24 +115,35 @@ const PatientSignupForm = () => {
 			}
 			// TODO: Create record for sign-up user into respective collection using the userID.
 			// TODO: Initiate role creation.
-			return "Success";
+			const user = await account.get();
+			if (user?.$id && userSession) {
+				setAuthData({ session: userSession, user });
+				// await setTeamAndMemberships(user?.$id);
+
+				// // Get patient Data using userId.
+				// const patient: any = await getPatient(token.userId);
+				// console.log("patient=>>", patient);
+
+				return "Success";
+			}
+			return SIGNUP_ERRORS.UNKNOWN_ERR;
 		}
 		return SIGNUP_ERRORS.INVALID_OTP;
 	};
 
 	const handleLogin = () => {
-		router.push(`/fortis/patient/login`);
+		router.push(`/${client}/${userType}/login`);
 	};
 
 	return (
 		<>
-			{userId && (
+			{/* {userId && (
 				<PasskeyModal
 					validatePasskey={validatePasskey}
-					redirectUrl="/fortis/patient/dashboard"
+					redirectUrl={`/${client}/${userType}/dashboard`}
 					title="Signup Verification"
 				/>
-			)}
+			)} */}
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
@@ -166,7 +191,7 @@ const PatientSignupForm = () => {
 						<b>Login</b>
 					</Button>
 					<Button
-						onClick={() => router.push(`/fortis/patient/appointment`)}
+						onClick={() => router.push(`/${client}/${userType}/appointment`)}
 						variant={"default"}
 						className="!bg-blue-500"
 					>
