@@ -17,14 +17,15 @@ import {
 import { FormFieldType, GenderOptions } from "@/constants";
 import FileUploader from "@/components/FileUploader";
 import { IdentificationTypes, PatientFormDefaultValues } from "../../constants";
-import { User } from "next-auth";
 import { Patient } from "@/types/appwrite.type";
 import AlertNote from "@/components/AlertNote";
 import { app_constants } from "@/constants/config";
 import { getIcons, ICON_NAMES } from "@/lib/service";
+import { useAuthStore } from "@/store/userAuthStore";
 
-const RegisterForm = ({ user }: { user?: User }) => {
+const RegisterForm = () => {
 	const { DEFAULT_ALERT_CONFIG, ERROR_ALERT_CONFIG } = app_constants;
+	const { user } = useAuthStore();
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [patient, setPatientData] = useState<Patient | undefined | null>(null);
@@ -54,13 +55,13 @@ const RegisterForm = ({ user }: { user?: User }) => {
 			const fetchPatientData = async () => {
 				firstRender.current = false;
 				const data: Patient | undefined | null = await getPatient(
-					user?.userId || "6807dc2f00116c0235f2"
+					user?.$id || ""
 				);
-				// data && form.reset(data);
-				setPatientData(data);
+				data && form.reset(data);
+				setPatientData(data);	
 			};
 			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-			firstRender.current && fetchPatientData();
+			firstRender.current && user?.$id && fetchPatientData();
 		} catch (err: unknown) {
 			console.log(err);
 		}
@@ -87,7 +88,7 @@ const RegisterForm = ({ user }: { user?: User }) => {
 				const patientData = {
 					...values,
 					userId: user.$id!,
-					clientId: user.clientId!,
+					clientId: "67223bb1003d39fa94d0",
 					identificationDocument: formData,
 				};
 				const newPatient = await registerPatient(patientData);

@@ -5,7 +5,6 @@ import { DEFAULT_WORKING_HOURS } from "@/constants";
 import { getDoctorCalendar } from "../db/doctor.actions";
 import DefaultTimeSlot from "@/components/DefaultTimeSlot";
 import { dummyDocData } from "@/data/docData";
-import { callPrefixSum } from "@/DSA/arrays/prefixSum";
 
 export const DocCalendar = () => {
 	const [docCalendarData, setDocCalendarData] =
@@ -21,8 +20,8 @@ export const DocCalendar = () => {
 	// 		console.log(err);
 	// 	}
 	// }, []);
-
-	callPrefixSum();
+	
+	// console.log("docCalendarData", docCalendarData);
 
 	useEffect(() => {
 		try {

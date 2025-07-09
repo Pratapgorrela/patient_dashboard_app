@@ -9,13 +9,10 @@ import { Items } from "../constants";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import Link from "next/link";
 import Button from "@/components/ButtonAtom";
-import { useAuthStore } from "@/store/userAuthStore";
+// import { useAuthStore } from "@/store/userAuthStore";
 // import { getAccount } from "@/lib/actions/common.actions";
 
 export const PatientDashboard = () => {
-	const store = useAuthStore();
-	console.log("store=>>", store);
-
 	const [selectedOption, setSelectedOption] = useState("Account");
 
 	// useEffect(() => {

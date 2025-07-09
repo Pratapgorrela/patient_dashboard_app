@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { ChevronUp, User2 } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 import {
 	Sidebar,
 	SidebarContent,

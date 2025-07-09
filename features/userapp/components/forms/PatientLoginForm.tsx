@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -12,8 +12,7 @@ import Button from "../../../../components/ButtonAtom";
 import { UserLoginFormValidation } from "@/features/userapp/types/validation";
 import { ERRORS, FormFieldType } from "@/constants";
 import { Models } from "node-appwrite";
-import PasskeyModal from "@/components/PasskeyModal";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import {
 	createUserSession,
 	createUserSessionByEmail,
@@ -24,17 +23,20 @@ import {
 import { account } from "@/models/client/config";
 import { useAuthStore } from "@/store/userAuthStore";
 import { useConfigStore } from "@/store/configStore";
-
-// import { handleCredentialsSignIn } from "@/lib/actions/auth.actions";
-// import { PatientData, SessionData, TokenData } from "@/data/data";
-// import { getPatient } from "../../db/actions/patient.actions";
+import PasskeyModal from "@/components/PasskeyModal";
 
 const PatientLoginForm = () => {
 	const router = useRouter();
-	const { setAuthData, setTeamsAndMemberhips } = useAuthStore();
+	const { setAuthData, setTeamsAndMemberhips, user } = useAuthStore();
 	const {
 		routeConfig: { client, userType },
 	} = useConfigStore();
+
+	useEffect(() => {
+		if (user?.$id) {
+			redirect(`/${client}/${userType}/dashboard`);
+		}
+	}, [user]);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [token, setToken] = useState<Models.Session | null>(null);
@@ -53,9 +55,11 @@ const PatientLoginForm = () => {
 		values: z.infer<typeof UserLoginFormValidation>
 	) => {
 		//STEP-2: Send OTP to user phone number.
-		const tokenData = await generatePhoneToken(values.phone);
-		if (tokenData) {
-			setToken(tokenData as Models.Session);
+		const tokenData: Models.Session = (await generatePhoneToken(
+			values.phone
+		)) as Models.Session;
+		if (tokenData && tokenData?.userId) {
+			setToken(tokenData);
 			setIsLoading(false);
 		} else setError(LOGIN_ERRORS.UNKNOWN_ERR);
 	};
@@ -88,7 +92,6 @@ const PatientLoginForm = () => {
 	async function setTeamAndMemberships(userId: string) {
 		const res = await getUserTeamsAndMemberships(userId);
 		setTeamsAndMemberhips(res);
-		console.log("res=>>", res);
 	}
 
 	// Use this for testing purpose.
@@ -98,15 +101,20 @@ const PatientLoginForm = () => {
 		setIsLoading(true);
 		try {
 			const session = await createUserSessionByEmail();
-			const [user, { jwt }] = await Promise.all([
-				account.get(),
-				account.createJWT(),
-			]);
-			console.log("userSession=>>", user, jwt, session);
-			setAuthData({ session, user, jwt });
-			setToken(session);
-			if (user?.$id) await setTeamAndMemberships(user?.$id);
-			if (jwt) router.push(`/${client}/${userType}/dashboard`);
+			const user = await account.get();
+			// const [user, { jwt }] = await Promise.all([
+			// 	account.get(),
+			// 	account.createJWT(),
+			// ]);
+			// account.deleteSession("current");
+			// console.log("userSession=>>", session, user);
+
+			if (user?.$id && session) {
+				setAuthData({ session, user });
+				setToken(session);
+				await setTeamAndMemberships(user?.$id);
+				router.push(`/${client}/${userType}/dashboard`);
+			}
 		} catch (error) {
 			setToken(null);
 			setError(LOGIN_ERRORS.UNKNOWN_ERR);
@@ -117,21 +125,28 @@ const PatientLoginForm = () => {
 	};
 
 	async function onSubmit(values: z.infer<typeof UserLoginFormValidation>) {
+		// await initiatePhoneLogin(values);
 		await initiatePasswordLogin();
 	}
 
 	const validatePasskey = async (passkey: string) => {
 		if (passkey && token?.userId) {
-			const session = token?.userId
-				? await createUserSession(token.userId, passkey)
-				: null;
+			const session = await createUserSession(token.userId, passkey);
 			console.log("session=>>", session);
 			if (session) {
-				// // Get patient Data using userId.
-				// const patient: any = await getPatient(token.userId);
-				// console.log("patient=>>", patient);
+				const user = await account.get();
+				if (user?.$id && session) {
+					setAuthData({ session, user });
+					setToken(session);
+					await setTeamAndMemberships(user?.$id);
 
-				return "Success";
+					// // Get patient Data using userId.
+					// const patient: any = await getPatient(token.userId);
+					// console.log("patient=>>", patient);
+
+					return "Success";
+				}
+				return LOGIN_ERRORS.UNKNOWN_ERR;
 			}
 			return LOGIN_ERRORS.UNKNOWN_ERR;
 		}
@@ -147,7 +162,7 @@ const PatientLoginForm = () => {
 			{/* {token?.userId && (
 				<PasskeyModal
 					validatePasskey={validatePasskey}
-					redirectUrl="/fortis/patient/dashboard"
+					redirectUrl={`/${client}/${userType}/dashboard`}
 				/>
 			)} */}
 			<Form {...form}>

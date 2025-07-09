@@ -11,10 +11,10 @@ import {
 	TriangleAlert,
 	Hourglass,
 } from "lucide-react";
-// import { useSession } from "next-auth/react";
+import { useAuthStore } from "@/store/userAuthStore";
 
 const AppointmentTable = () => {
-	// const { data: sessionData } = useSession();
+	const { user } = useAuthStore();
 
 	const [appointments, setAppointments] = useState<
 		| {
@@ -38,15 +38,15 @@ const AppointmentTable = () => {
 		try {
 			const getAppointments = async () => {
 				const appointmentsData = await getRecentAppointmentList(
-					"+918886887129"
-					// sessionData?.user?.phone || ""
+					user?.$id || ""
 				);
 				setIsLoading(false);
 				setAppointments(appointmentsData);
 			};
 			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 			// !initialRenderComplete && sessionData?.user?.phone && getAppointments();
-			!initialRenderComplete && getAppointments();
+			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+			!initialRenderComplete && user?.$id && getAppointments();
 		} catch (error) {
 			console.log(error);
 			setIsLoading(false);
